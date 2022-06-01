@@ -8,6 +8,8 @@
 #include<iostream>
 #include<cerrno>
 #include<glm/glm.hpp>
+#include<glm/gtc/matrix_transform.hpp>
+#include<glm/gtc/type_ptr.hpp>
 
 std::string get_file_contents(const char* filename);
 
@@ -27,6 +29,8 @@ public:
 	void SetFloat(const char* name, float value);
 
 	void SetVec3(const char* name, float x, float y, float z);
+
+	void SetMat4(const char* name, glm::mat4 value);
 
 	void compileErrors(unsigned int shader, const char* type);
 };

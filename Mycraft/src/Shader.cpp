@@ -84,6 +84,11 @@ void Shader::SetVec3(const char* name, float x, float y, float z)
 	glUniform3f(glGetUniformLocation(ID, name), x, y, z);
 }
 
+void Shader::SetMat4(const char* name, glm::mat4 value)
+{
+	glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, glm::value_ptr(value));
+}
+
 // Checks if the different Shaders have compiled properly
 void Shader::compileErrors(unsigned int shader, const char* type)
 {

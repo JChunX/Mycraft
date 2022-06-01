@@ -14,12 +14,13 @@
 #include"EBO.h"
 #include"Texture.h"
 #include"Camera.h"
+#include"Block.h"
+#include"BlockRenderer.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 const unsigned int SCR_WIDTH = 1200;
 const unsigned int SCR_HEIGHT = 720;
-
 
 float vertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -98,6 +99,8 @@ int main()
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 	glEnable(GL_DEPTH_TEST);  
 
+
+
 	// Generates Shader objects
 	Shader defaultShader("shaders/default.vert", "shaders/default.frag");
 
@@ -107,30 +110,24 @@ int main()
 
 	// Generates Vertex Buffer Object and links it to vertices
 	VBO VBO1(vertices, sizeof(vertices));
-
 	// Links VBO attributes
 	// 1. vertex attributes
 	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
 	// 2. surface normal attributes
 	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*) (3*sizeof(float)));
-
-	VAO VAOLight;
-	VAOLight.Bind();
-	VAOLight.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
 	// Unbind all to prevent accidentally modifying them
 	VAO1.Unbind();
-	VAOLight.Unbind();
 	VBO1.Unbind();
+
+	BlockRenderer block_renderer(defaultShader, VBO1, VAO1, vertices);
 
 	// Shader needs to be activated before changing the value of a uniform
 	defaultShader.Activate();
-	Camera camera(SCR_WIDTH, SCR_HEIGHT, window, 100.0f, 0.1f, 1000.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	Camera camera(SCR_WIDTH, 
+				SCR_HEIGHT, 
+				window, 100.0f, 0.1f, 1000.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	camera.SetProjectionUniform(defaultShader, "projection");
-	glm::vec3 lightPos = glm::vec3(1.2f, 2.0f, 2.0f);
-
-	defaultShader.Activate();
-	camera.SetProjectionUniform(defaultShader, "projection");
-
+	
 	InputBroadcaster::AddListener(camera);
 
 	// Main while loop
@@ -143,60 +140,30 @@ int main()
 		// Clear the depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+
 		// Tell OpenGL which Shader Program we want to use
 		defaultShader.Activate();
 		// Set view
 		InputBroadcaster::ReadInputs(window);
 		camera.SetViewUniform(defaultShader, "view");
-		// Set color uniforms
- 		defaultShader.SetVec3("light.position", lightPos.x, lightPos.y, lightPos.z);
 
-        // light properties
-        glm::vec3 lightColor;
-        lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0));
-        lightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7));
-        lightColor.z = static_cast<float>(sin(glfwGetTime() * 1.3));
-        glm::vec3 diffuseColor = lightColor   * glm::vec3(0.5f); // decrease the influence
-        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
-        defaultShader.SetVec3("light.ambient", ambientColor.x, ambientColor.y, ambientColor.z);
-        defaultShader.SetVec3("light.diffuse", diffuseColor.x, diffuseColor.y, diffuseColor.z);
-        defaultShader.SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
-
-        // material properties
-        defaultShader.SetVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-        defaultShader.SetVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-        defaultShader.SetVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
-        defaultShader.SetFloat("material.shininess", 32.0f);
-
-        
-		VAO1.Bind();
 		// draw 10000 cubes laid out on grid
 		for (int i = 0; i < 100; i++)
 		{
 			for (int j = 0; j < 100; j++)
 			{
-				// Set model
-				glm::mat4 model = glm::mat4(1.0f);
-				model = glm::translate(model, glm::vec3(i * 1.5f-100, 0.0f, j * 1.5f-100));
-				// Spin the cube at a rate proportional to its position
-				//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f) * (float)i, glm::vec3(0.5f, 1.0f, 0.0f));
-				// Move cube up and down
-				model = glm::translate(model, glm::vec3(0.0f, (float)sin(glfwGetTime() * 2.0f) * 0.5f, 0.0f));
-				glUniformMatrix4fv(glGetUniformLocation(defaultShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-				// Draw the cube
-				glDrawArrays(GL_TRIANGLES, 0, 36);
+				Block block(glm::vec3(i * 1.0f-100, 0, j * 1.0f-100));
+				block_renderer.Render(block);
 			}
 		}
 
-		// draw second square acting as lamp
-		defaultShader.Activate();
-		camera.SetViewUniform(defaultShader, "view");
-		glm::mat4 lightModel = glm::mat4(1.0f);
-		lightModel = glm::translate(lightModel, lightPos);
-		lightModel = glm::scale(lightModel, glm::vec3(0.2f));
-		glUniformMatrix4fv(glGetUniformLocation(defaultShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
-		VAOLight.Bind();
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		// log any errors
+		GLenum error = glGetError();
+		if (error != GL_NO_ERROR)
+		{
+			std::cout << "OpenGL Error: " << error << std::endl;
+		}
 
 		// Swap the back buffer with the front buffer
 		glfwSwapBuffers(window);
@@ -205,8 +172,6 @@ int main()
 	}
 
 	// Delete all the objects we've created
-	VAO1.Delete();
-	VBO1.Delete();
 	defaultShader.Delete();
 	// Delete window before ending the program
 	glfwDestroyWindow(window);

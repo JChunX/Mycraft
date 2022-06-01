@@ -32,7 +32,9 @@ add_executable(Mycraft src/main.cpp
                         src/Camera.cpp
                         src/WorldObject.cpp
                         src/InputBroadcaster.cpp
-                        src/InputListener.cpp)
+                        src/InputListener.cpp
+                        src/Block.cpp
+                        src/BlockRenderer.cpp)
 
 target_include_directories(Mycraft PRIVATE "include" "src")
 

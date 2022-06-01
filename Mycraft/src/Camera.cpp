@@ -22,7 +22,7 @@ Camera::Camera(int width, int height,
 void Camera::SetProjectionUniform(Shader& shader, const char* uniform)
 {
     glm::mat4 projection = glm::perspective(glm::radians(FOVdeg), (float) width / (float) height, near_plane, far_plane);
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(projection));
+	shader.SetMat4(uniform, projection);
 }
 
 void Camera::SetViewUniform(Shader& shader, const char* uniform)
@@ -39,7 +39,7 @@ void Camera::SetViewUniform(Shader& shader, const char* uniform)
     glm::vec3 camera_up = glm::normalize(glm::cross(camera_right, direction));
 
     glm::mat4 view = glm::lookAt(position, target, camera_up);
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(view));
+	shader.SetMat4(uniform, view);
 }
 
 void Camera::Input(UserInput& user_input)
