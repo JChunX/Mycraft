@@ -11,14 +11,14 @@
 class BlockRenderer
 {
 public:
-    Shader shader;
 
-    BlockRenderer(Shader& shader, VBO& vbo, VAO& vao, float* vertices);
-    void Render(Block& block);
+    BlockRenderer(const char* texture_path, float* vertices, int length);
+    void Render(Shader& shader, Block& block);
 
 private:
     VAO vao;
     VBO vbo;
+    Texture texture_atlas;
 };
 
 #endif

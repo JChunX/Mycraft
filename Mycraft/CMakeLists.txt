@@ -1,6 +1,6 @@
 # See "With CMake and installed GLFW binaries" in the GLFW readme.
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 
 # set the project name and version
 project(Mycraft VERSION 1.0)
@@ -21,22 +21,21 @@ find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
 # add executables
-add_executable(Mycraft src/main.cpp 
+add_executable(Mycraft)
+target_sources(Mycraft PRIVATE src/main.cpp 
                         src/glad.c
-                        src/VBO.cpp 
-                        src/VAO.cpp 
-                        src/EBO.cpp
-                        src/Shader.cpp
-                        src/stb.cpp
-                        src/Texture.cpp
-                        src/Camera.cpp
-                        src/WorldObject.cpp
-                        src/InputBroadcaster.cpp
-                        src/InputListener.cpp
-                        src/Block.cpp
-                        src/BlockRenderer.cpp)
+                        src/Application.cpp
+                        src/Context.cpp
+                        src/Helpers.cpp
+                        src/stb.cpp)
 
 target_include_directories(Mycraft PRIVATE "include" "src")
+
+add_subdirectory(src/core)
+add_subdirectory(src/render)
+add_subdirectory(src/shader)
+add_subdirectory(src/texture)
+add_subdirectory(src/world)
 
 target_link_libraries(Mycraft glfw)
 target_link_libraries(Mycraft OpenGL::GL)

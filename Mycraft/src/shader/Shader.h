@@ -28,6 +28,8 @@ public:
 
 	void SetFloat(const char* name, float value);
 
+	void SetVec2(const char* name, float x, float y);
+
 	void SetVec3(const char* name, float x, float y, float z);
 
 	void SetMat4(const char* name, glm::mat4 value);

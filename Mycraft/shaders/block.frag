@@ -17,11 +17,14 @@ struct Light {
 
 in vec3 normal;
 in vec3 fragPos;  
+in vec2 texCoord;
 
 out vec4 fragcolor;
 
 uniform Light light;
 uniform Material material;
+uniform sampler2D tex0;
+uniform vec2 textureOffset;
 
 void main()
 {
@@ -40,5 +43,6 @@ void main()
 	vec3 specular = material.specular * light.specular * pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 	
 	vec3 result = ambient + diffuse + specular;
-	fragcolor = vec4(result, 1.0);
+	//fragcolor = vec4(result, 1.0);
+	fragcolor = texture(tex0, texCoord / 16.0f + textureOffset);
 }

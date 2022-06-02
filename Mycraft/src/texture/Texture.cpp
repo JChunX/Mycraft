@@ -5,6 +5,7 @@
 
 Texture::Texture(GLenum texType, const char* path, GLenum format, GLenum pixelType)
 {
+	this->texType = texType;
     glGenTextures(1, &ID);
     Bind();
 
@@ -12,7 +13,7 @@ Texture::Texture(GLenum texType, const char* path, GLenum format, GLenum pixelTy
 	glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_REPEAT);	
 	glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // Load image
 	int width, height, nrChannels;
