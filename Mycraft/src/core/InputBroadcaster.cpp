@@ -76,7 +76,7 @@ void InputBroadcaster::ReadInputs(GLFWwindow* window)
     // broadcast user input to all listeners
     for (InputListener* listener : listeners)
     {
-        listener->ReceiveInput(user_input);
+        listener->ReceiveInput(window, user_input);
     }
 
 }

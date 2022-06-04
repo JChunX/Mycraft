@@ -4,14 +4,18 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include"Camera.h"
+#include"Scene.h"
+#include"ChunkRenderer.h"
 
 class MainRenderer
 {
 public:
+    Camera& m_camera;
+    ChunkRenderer m_chunk_renderer;
+    
     MainRenderer(Camera& camera);
     ~MainRenderer();
-    Camera m_camera;
-    void Render();
+    void Render(Scene& scene);
 };
 
 #endif

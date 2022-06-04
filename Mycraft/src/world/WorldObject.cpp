@@ -1,15 +1,16 @@
 #include"WorldObject.h"
 
 WorldObject::WorldObject(glm::vec3 position, glm::quat orientation)
+    : position(position),
+      orientation(orientation)
 {
-    this->position = position;
-    this->orientation = orientation;
+
 }
 
 WorldObject::WorldObject(glm::vec3 position, glm::vec3 orientation)
+    : WorldObject(position, glm::quat(orientation))
 {
-    this->position = position;
-    this->orientation = glm::quat(orientation);
+
 }
 
 // Rotate the object using euler angles

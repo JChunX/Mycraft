@@ -12,7 +12,7 @@ protected:
 public:
     int id;
     virtual ~InputListener() = default;
-    void ReceiveInput(UserInput& user_input);
-    virtual void Input(UserInput& user_input) = 0;
+    void ReceiveInput(GLFWwindow* window, UserInput& user_input);
+    virtual void Input(GLFWwindow* window, UserInput& user_input) = 0;
 };
 #endif

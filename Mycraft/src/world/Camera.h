@@ -17,8 +17,6 @@ public:
     float near_plane;
     float far_plane;
 
-    GLFWwindow *window;
-
     int width;
     int height;
 
@@ -28,8 +26,7 @@ public:
     float sensitivity = 100.0f;
 
     // Camera constructor
-    Camera(int width, int height, 
-            GLFWwindow* window,
+    Camera(int width, int height,
             float FOVdeg=45.0f, 
             float near_plane=0.1f, 
             float far_plane=100.0f,
@@ -38,7 +35,8 @@ public:
 
     void SetProjectionUniform(Shader& shader, const char* uniform);
     void SetViewUniform(Shader& shader, const char* uniform);
+    void SetProjectionViewUniforms(Shader& shader);
 
-    virtual void Input(UserInput& user_input);
+    virtual void Input(GLFWwindow* window, UserInput& user_input);
 };
 #endif

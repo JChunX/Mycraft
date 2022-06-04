@@ -2,7 +2,6 @@
 #include"Shader.h"
 
 Camera::Camera(int width, int height,
-			   GLFWwindow* window,
                float FOVdeg,
                float near_plane,
                float far_plane,
@@ -11,7 +10,6 @@ Camera::Camera(int width, int height,
 			    : WorldObject(camera_position, camera_orientation), 
 				  InputListener()
 {
-	this->window = window;
     this->width = width;
     this->height = height;
     this->FOVdeg = FOVdeg;
@@ -42,7 +40,13 @@ void Camera::SetViewUniform(Shader& shader, const char* uniform)
 	shader.SetMat4(uniform, view);
 }
 
-void Camera::Input(UserInput& user_input)
+void Camera::SetProjectionViewUniforms(Shader& shader)
+{
+	SetProjectionUniform(shader, "projection");
+	SetViewUniform(shader, "view");
+}
+
+void Camera::Input(GLFWwindow* window, UserInput& user_input)
 {
 
 	for (KeyInfo key_info : user_input.key_info)

@@ -2,7 +2,7 @@
 #define APPLICATION_H
 
 #include"Camera.h"
-//#include"Scene.h"
+#include"Scene.h"
 #include"MainRenderer.h"
 #include"Context.h"
 #include"InputBroadcaster.h"
@@ -11,11 +11,11 @@
 class Application
 {
 public:
-    Camera m_camera;
-    float m_last_frame;
-    //Scene m_scene;
-    MainRenderer m_renderer;
     Context m_context;
+    Camera m_camera;
+    Scene m_scene;
+    MainRenderer m_renderer;
+    float m_last_frame;
 
     Application();
     ~Application();

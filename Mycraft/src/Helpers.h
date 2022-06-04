@@ -3,7 +3,10 @@
 
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
+#include"WorldObject.h"
 
 void check_error(int checkpoint);
+
+void log_debug(WorldObject& object);
 
 #endif

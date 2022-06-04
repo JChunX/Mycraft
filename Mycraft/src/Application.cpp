@@ -3,8 +3,9 @@
 Application::Application()
     : m_context(Context()),
       m_camera(Camera(SCR_WIDTH, 
-				SCR_HEIGHT, 
-				m_context.window, 70.0f, 0.1f, 50.0f, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f))),
+				SCR_HEIGHT, 70.0f, 0.1f, 50.0f, 
+                glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f))),
+      m_scene(Scene(m_camera)),
       m_renderer(MainRenderer(m_camera))
 {
 
@@ -13,14 +14,16 @@ Application::Application()
 void Application::Run()
 {
     InputBroadcaster::AddListener(m_camera);
-    //m_scene = Scene();
+    
     float m_last_frame = glfwGetTime();
     while (!glfwWindowShouldClose(m_context.window))
     {
         FPS();
-
-        //m_scene.Update();
-        m_renderer.Render();
+        log_debug(m_camera);
+        InputBroadcaster::ReadInputs(m_context.window);
+        m_scene.Update();
+        m_renderer.Render(m_scene);
+        check_error(1);
 
         glfwSwapBuffers(m_context.window);
         glfwPollEvents();
