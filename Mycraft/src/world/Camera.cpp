@@ -46,7 +46,7 @@ void Camera::SetProjectionViewUniforms(Shader& shader)
 	SetViewUniform(shader, "view");
 }
 
-void Camera::Input(GLFWwindow* window, UserInput& user_input)
+void Camera::Input(GLFWwindow* window, UserInput& user_input, float delta_time)
 {
 
 	for (KeyInfo key_info : user_input.key_info)
@@ -74,7 +74,7 @@ void Camera::Input(GLFWwindow* window, UserInput& user_input)
 				position -= glm::vec3(0.0f, speed, 0.0f);
 				break;
 			case GLFW_KEY_LEFT_CONTROL:
-				speed = 0.4f;
+				speed = 5.0f * delta_time;
 				break;
 			default:
 				break;
@@ -85,7 +85,8 @@ void Camera::Input(GLFWwindow* window, UserInput& user_input)
 			switch (key_info.key)
 			{
 			case GLFW_KEY_LEFT_CONTROL:
-				speed = 0.1f;
+				speed = 2.0f * delta_time;
+				
 				break;
 			default:
 				break;

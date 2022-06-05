@@ -9,6 +9,7 @@
 class InputBroadcaster
 {
 public:
+    static float m_last_frame;
     // empty array of InputListeners
     inline static std::vector<InputListener*> listeners;
 
@@ -17,6 +18,6 @@ public:
     // remove a listener from the listeners array
     static void RemoveListener(InputListener& to_remove);
     // broadcast the key input to all listeners
-    static void ReadInputs(GLFWwindow* window);
+    static void ReadInputs(GLFWwindow* window, float delta_time);
 };
 #endif

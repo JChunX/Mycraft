@@ -1,6 +1,8 @@
 #include"InputBroadcaster.h"
 #include<iostream>
 
+void FPS();
+
 // add a listener to the listeners array
 void InputBroadcaster::AddListener(InputListener& new_listener)
 {
@@ -20,7 +22,7 @@ void InputBroadcaster::RemoveListener(InputListener& to_remove)
 }
 
 // broadcast the key input to all listeners
-void InputBroadcaster::ReadInputs(GLFWwindow* window)
+void InputBroadcaster::ReadInputs(GLFWwindow* window, float delta_time)
 {
 
     // initialize UserInput struct
@@ -76,7 +78,8 @@ void InputBroadcaster::ReadInputs(GLFWwindow* window)
     // broadcast user input to all listeners
     for (InputListener* listener : listeners)
     {
-        listener->ReceiveInput(window, user_input);
+        listener->ReceiveInput(window, user_input, delta_time);
     }
 
 }
+

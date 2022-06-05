@@ -6,7 +6,7 @@ TextureManager::TextureManager()
                 GL_RGBA, 
                 GL_UNSIGNED_BYTE))
 {
-
+    BindTexture();
 }
 
 TextureManager::~TextureManager()

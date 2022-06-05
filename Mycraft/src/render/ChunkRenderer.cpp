@@ -12,15 +12,34 @@ ChunkRenderer::~ChunkRenderer()
 
 }
 
-void ChunkRenderer::Render(std::vector<Chunk>& chunks, Camera& camera)
+void ChunkRenderer::Render(Scene& scene, TextureManager& texture_manager)
 {
     m_shader.Activate();
-    camera.SetProjectionViewUniforms(m_shader);
+    m_camera.SetProjectionViewUniforms(m_shader);
 
-    for (auto chunk : chunks)
+    for (auto& kv : scene.m_current_chunks)
     {
-        Mesh mesh(chunk);
-        mesh.Render();
+        Chunk* chunk = &(kv.second);
+        if (chunk->need_mesh_update) {
+            Mesh mesh(scene, kv.first, texture_manager);
+            // try inserting mesh into map
+            auto result = m_meshes.insert({kv.first, mesh});
+            // if key already exists, replace it
+            if (!result.second) 
+            {
+                m_meshes.erase(result.first);
+                m_meshes.insert({kv.first, mesh});
+            }
+            mesh.Render();
+            chunk->need_mesh_update = false;
+            //print new mesh
+            std::cout << "new mesh" << std::endl;
+        }
+    }
+
+    for (auto& kv : m_meshes)
+    {
+        kv.second.Render();
     }
 }
 

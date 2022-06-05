@@ -21,7 +21,7 @@ public:
     ~Application();
 
     void Run();
-    void FPS();
+    float Time();
 };
 
 #endif

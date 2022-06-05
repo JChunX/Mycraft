@@ -7,8 +7,8 @@ InputListener::InputListener()
     this->id = std::rand();
 }
 
-void InputListener::ReceiveInput(GLFWwindow* window, UserInput& user_input)
+void InputListener::ReceiveInput(GLFWwindow* window, UserInput& user_input, float delta_time)
 {
     // call the virtual function Input
-    this->Input(window, user_input);
+    this->Input(window, user_input, delta_time);
 }

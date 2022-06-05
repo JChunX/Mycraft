@@ -37,6 +37,6 @@ public:
     void SetViewUniform(Shader& shader, const char* uniform);
     void SetProjectionViewUniforms(Shader& shader);
 
-    virtual void Input(GLFWwindow* window, UserInput& user_input);
+    virtual void Input(GLFWwindow* window, UserInput& user_input, float delta_time);
 };
 #endif
