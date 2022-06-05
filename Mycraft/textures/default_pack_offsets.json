@@ -1,26 +1,26 @@
 {
-    "GRASS": 
+    "grass": 
     { 
-        "SIDE": [3,0],
-        "TOP": [0,0],
-        "BOTTOM": [2,0]
+        "side": [3,31],
+        "top": [2,31],
+        "bottom": [11,30]
     },
-    "DIRT": 
+    "dirt": 
     { 
-        "SIDE": [2,0],
-        "TOP": [2,1],
-        "BOTTOM": [2,0]
+        "side": [11,30],
+        "top": [11,30],
+        "bottom": [11,30]
     },
-    "STONE": 
+    "stone": 
     { 
-        "SIDE": [0,1],
-        "TOP": [0,1],
-        "BOTTOM": [0,1]
+        "side": [19,31],
+        "top": [19,31],
+        "bottom": [19,31]
     },
-    "SAND":
+    "sand":
     {
-        "SIDE": [2,1],
-        "TOP": [2,1],
-        "BOTTOM": [2,1]
+        "side": [3,30],
+        "top": [3,30],
+        "bottom": [3,30]
     }
 }

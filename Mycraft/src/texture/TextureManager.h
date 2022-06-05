@@ -3,12 +3,14 @@
 
 #include"Texture.h"
 #include"Block.h"
+#include"nlohmann/json.hpp"
 #include<utility>
 #include<map>
 #include<string>
 
 
 using TextureOffsets = std::pair<float, float>;
+using json = nlohmann::json;
 
 struct TextureCoords
 {
@@ -21,11 +23,11 @@ class TextureManager
 {
 public:
     Texture m_texture;
-    std::map<BlockType, TextureCoords> m_texture_coords; 
+    std::map<std::string, TextureCoords> m_texture_coords; 
     TextureManager();
     ~TextureManager();
     void LoadTextureOffsets(std::string path);
-    glm::vec2 RetrieveTextureOffsets(BlockType type, BlockFace face);
+    std::pair<float,float> RetrieveTextureOffsets(BlockType type, BlockFace face);
     void BindTexture();
 };
 

@@ -3,3 +3,6 @@ file(GLOB PNG_IMAGES
 
 file(COPY ${PNG_IMAGES}
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+file(COPY default_pack_offsets.json
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

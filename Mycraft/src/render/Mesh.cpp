@@ -158,13 +158,13 @@ void Mesh::AddFace(Block& block, BlockFace face)
     float y = block.position.y;
     float z = block.position.z;
 
-    glm::vec2 tex_coords = m_texture_manager.RetrieveTextureOffsets(block.block_type, face);
+    std::pair<float,float> tex_coords = m_texture_manager.RetrieveTextureOffsets(block.block_type, face);
 
-    float tex_coord_x = 2.0f/32.0f;
-    float tex_coord_y = 31.0f/32.0f;
+    float tex_coord_x = tex_coords.first/32.0f;
+    float tex_coord_y = tex_coords.second/32.0f;
 
     //print out the texture coordinates
-    //std::cout << tex_coord_x << " " << tex_coord_y << std::endl;
+    std::cout << "Texture corrrds" << tex_coord_x << " " << tex_coord_y << std::endl;
 
     switch (face)
     {

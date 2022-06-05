@@ -29,7 +29,7 @@ void Chunk::Generate()
                 }
                 else if (y < 100 + 3)
                 {
-                    m_chunkdata[GetIndex(x,y,z)] = Block(BlockType::GRASS, block_position);
+                    m_chunkdata[GetIndex(x,y,z)] = Block(BlockType::SAND, block_position);
                 }
                 else
                 {
