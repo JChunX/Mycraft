@@ -12,8 +12,10 @@ Texture::Texture(GLenum texType, const char* path, GLenum format, GLenum pixelTy
     // Set the texture wrapping/filtering options (on the currently bound texture object)
 	glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_REPEAT);	
 	glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	// https://gamedev.stackexchange.com/questions/174205/removing-texture-wrapping-artifacts-in-opengles
+	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(texType, GL_TEXTURE_MAX_LEVEL, 4);
 
     // Load image
 	int width, height, nrChannels;
