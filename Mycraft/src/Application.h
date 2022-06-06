@@ -20,6 +20,7 @@ public:
     Application();
     ~Application();
 
+    static void ExitCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     void Run();
     float Time();
 };

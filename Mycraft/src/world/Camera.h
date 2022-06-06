@@ -9,6 +9,12 @@
 #include"InputListener.h"
 #include"InputBroadcaster.h"
 
+enum class MotionState {
+    SLOW,
+    WAIT_FAST_ACTIVATION,
+    FAST
+};
+
 class Camera : public WorldObject, public InputListener
 {
 public:
@@ -24,6 +30,11 @@ public:
 
     float speed = 0.1f;
     float sensitivity = 100.0f;
+
+    float last_time;
+    float forward_speed_multiplier = 1.0f;
+    bool w_last_pressed = false;
+    MotionState motion_state = MotionState::SLOW;
 
     // Camera constructor
     Camera(int width, int height,

@@ -14,6 +14,7 @@ Application::Application()
 void Application::Run()
 {
     InputBroadcaster::AddListener(m_camera);
+    glfwSetKeyCallback(m_context.window, ExitCallback);
     
     float m_last_frame = glfwGetTime();
     while (!glfwWindowShouldClose(m_context.window))
@@ -37,6 +38,14 @@ float Application::Time()
     m_last_frame = current_frame;
     //std::cout << "FPS: " << 1.0f / delta_time << std::endl;
     return delta_time;
+}
+
+void Application::ExitCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    }
 }
 
 Application::~Application()
