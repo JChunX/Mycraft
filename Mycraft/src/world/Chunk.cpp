@@ -11,29 +11,28 @@ Chunk::Chunk(int x, int z)
 
 void Chunk::Generate()
 {
+    Terrain terrain = TerrainGenerator::GenerateTerrain(m_x, m_z);
 
-    for (int y=0; y<WORLD_HEIGHT; y++)
-    {
-        for (int x=0; x<CHUNK_SIZE; x++)
-        {
-            for (int z=0; z<CHUNK_SIZE; z++)
-            {
+    for (int z = 0; z < CHUNK_SIZE; z++) {
+        for (int x = 0; x < CHUNK_SIZE; x++) {
+            float height = terrain.height[x][z] * WORLD_HEIGHT/8 + 40;
+            for (int y = 0; y < WORLD_HEIGHT; y++) {
                 glm::vec3 block_position = glm::vec3(m_x+x,y,m_z+z);
                 if (y == 0) 
                 {
-                    m_chunkdata[GetIndex(x,y,z)] = Block(BlockType::BEDROCK, block_position);
+                    m_chunkdata[GetIndex(x, y, z)] = Block(BlockType::BEDROCK, block_position);
                 }
-                if (y < 100)
-                {
-                    m_chunkdata[GetIndex(x,y,z)] = Block(BlockType::STONE, block_position);
+                else if (y <= height - 5) {
+                    m_chunkdata[GetIndex(x, y, z)] = Block(BlockType::STONE, block_position);
                 }
-                else if (y < 100 + 3)
-                {
-                    m_chunkdata[GetIndex(x,y,z)] = Block(BlockType::SAND, block_position);
+                else if (y <= height - 1) {
+                    m_chunkdata[GetIndex(x, y, z)] = Block(BlockType::DIRT, block_position);
                 }
-                else
-                {
-                    m_chunkdata[GetIndex(x,y,z)] = Block(BlockType::AIR, block_position);
+                else if (y <= height) {
+                    m_chunkdata[GetIndex(x, y, z)] = Block(BlockType::GRASS, block_position);
+                }
+                else {
+                    m_chunkdata[GetIndex(x, y, z)] = Block(BlockType::AIR, block_position);
                 }
             }
         }

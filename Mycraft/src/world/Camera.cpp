@@ -74,7 +74,7 @@ void Camera::Input(GLFWwindow* window, UserInput& user_input, float delta_time)
 				position -= glm::vec3(0.0f, speed, 0.0f);
 				break;
 			case GLFW_KEY_LEFT_CONTROL:
-				speed = 5.0f * delta_time;
+				speed = 15.0f * delta_time;
 				break;
 			default:
 				break;
@@ -85,7 +85,7 @@ void Camera::Input(GLFWwindow* window, UserInput& user_input, float delta_time)
 			switch (key_info.key)
 			{
 			case GLFW_KEY_LEFT_CONTROL:
-				speed = 2.0f * delta_time;
+				speed = 5.0f * delta_time;
 				
 				break;
 			default:

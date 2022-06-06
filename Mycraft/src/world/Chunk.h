@@ -6,6 +6,7 @@
 
 #include <vector>
 #include "Block.h"
+#include "TerrainGenerator.h"
 
 class Chunk 
 {
