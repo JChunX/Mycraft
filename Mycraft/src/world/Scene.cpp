@@ -10,6 +10,14 @@ void Scene::Update()
 {
     glm::vec3 position = m_camera.position;
     LoadChunks(position.x, position.z);
+    //print camera heading
+    glm::vec3 heading = m_camera.GetHeadingVector();
+    Block* current_block = GetRaycastTarget(position, heading);
+
+    if (current_block != nullptr)
+    {
+        std::cout << "Current block position: " << current_block->position.x << " " << current_block->position.y << " " << current_block->position.z << std::endl;
+    }
 }
 
 void Scene::LoadChunks(int x, int z)
@@ -77,6 +85,46 @@ Chunk* Scene::GetChunk(std::pair<int, int> chunk_coords)
     {
         return nullptr;
     }
+}
+
+Block* Scene::GetBlock(int x, int y, int z)
+{
+    glm::vec2 nearest_chunk_offset = static_cast<float>(CHUNK_SIZE) * glm::vec2(round(x / CHUNK_SIZE), round(z / CHUNK_SIZE));
+    int xc0 = nearest_chunk_offset.x;
+    int zc0 = nearest_chunk_offset.y;
+    std::pair<int, int> chunk_coords = std::pair<int, int>(xc0, zc0);
+    Chunk* chunk = GetChunk(chunk_coords);
+    if (chunk != nullptr)
+    {
+        return chunk->GetBlock(x, y, z);
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+Block* Scene::GetRaycastTarget(glm::vec3 ray_origin, glm::vec3 ray_direction)
+{
+
+    float t = 0.0f;
+    float t_min = 0.0f;
+    float t_max = 10.0f;
+    float t_step = 0.1f;
+    glm::vec3 p;
+
+    while (t < t_max)
+    {
+        p = ray_origin + ray_direction * t;
+        Block* block = GetBlock(p.x, p.y, p.z);
+        if (block != nullptr && block->block_type != BlockType::AIR)
+        {
+            return block;
+        }
+        t += t_step;
+    }
+
+    return nullptr;
 }
 
 Scene::~Scene()

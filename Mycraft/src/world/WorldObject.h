@@ -28,6 +28,7 @@ public:
     void Translate(glm::vec3 translation);
 
     glm::vec3 GetEulerAngles();
+    glm::vec3 GetHeadingVector();
 };
 
 #endif

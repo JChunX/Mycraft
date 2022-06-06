@@ -51,11 +51,18 @@ void Chunk::SetBlock(int x, int y, int z, Block& block)
     m_chunkdata[GetIndex(x, y, z)] = block;
 }
 
-Block Chunk::GetBlock(int x, int y, int z)
+Block* Chunk::GetBlock(int x, int y, int z)
 {
     if (!IsInChunk(x, y, z))
-        return Block();
-    return m_chunkdata[GetIndex(x, y, z)];
+        return nullptr;
+    return &(m_chunkdata[GetIndex(x, y, z)]);
+}
+
+BlockType Chunk::GetBlockType(int x, int y, int z)
+{
+    if (!IsInChunk(x, y, z))
+        return BlockType::NONE;
+    return m_chunkdata[GetIndex(x, y, z)].block_type;
 }
 
 int Chunk::GetIndex(int x, int y, int z)

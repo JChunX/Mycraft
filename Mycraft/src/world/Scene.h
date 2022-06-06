@@ -18,6 +18,7 @@ public:
     std::map<std::pair<int, int>, Chunk> m_current_chunks;
     //Player& m_player;
     Camera& m_camera;
+    Block* current_block;
 
     void Update();
     void LoadChunks(int x, int z);
@@ -29,6 +30,10 @@ public:
                     Chunk& chunk);
 
     Chunk* GetChunk(std::pair<int, int> chunk_coords);
+
+    Block* GetBlock(int x, int y, int z);
+    Block* GetRaycastTarget(glm::vec3 position, glm::vec3 heading);
+
 };
 
 #endif // SCENE_H

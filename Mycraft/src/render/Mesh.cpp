@@ -57,7 +57,7 @@ void Mesh::GenerateMesh()
             Chunk* chunk =  m_scene.GetChunk(neighbour_chunk_offset);
             if (chunk)
             {
-                neighbour_type = chunk->GetBlock(CHUNK_SIZE-1, chunk_y, chunk_z).block_type;
+                neighbour_type = m_chunk.GetBlockType(CHUNK_SIZE-1, chunk_y, chunk_z);
                 if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::NONE)
                 {
                     AddFace(block, BlockFace::BACK);
@@ -66,7 +66,7 @@ void Mesh::GenerateMesh()
         }
         else 
         {
-            neighbour_type = m_chunk.GetBlock(chunk_x - 1, chunk_y, chunk_z).block_type;
+            neighbour_type = m_chunk.GetBlockType(chunk_x - 1, chunk_y, chunk_z);
             if (neighbour_type == BlockType::AIR)
             {
                 AddFace(block, BlockFace::BACK);
@@ -78,7 +78,7 @@ void Mesh::GenerateMesh()
             Chunk* chunk =  m_scene.GetChunk(neighbour_chunk_offset);
             if (chunk)
             {
-                neighbour_type = chunk->GetBlock(0, chunk_y, chunk_z).block_type;
+                neighbour_type = chunk->GetBlockType(0, chunk_y, chunk_z);
                 if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::NONE)
                 {
                     AddFace(block, BlockFace::FRONT);
@@ -87,7 +87,7 @@ void Mesh::GenerateMesh()
         }
         else
         {
-            neighbour_type = m_chunk.GetBlock(chunk_x + 1, chunk_y, chunk_z).block_type;
+            neighbour_type = m_chunk.GetBlockType(chunk_x + 1, chunk_y, chunk_z);
             if (neighbour_type == BlockType::AIR)
             {
                 AddFace(block, BlockFace::FRONT);
@@ -99,7 +99,7 @@ void Mesh::GenerateMesh()
             Chunk* chunk =  m_scene.GetChunk(neighbour_chunk_offset);
             if (chunk)
             {
-                neighbour_type = chunk->GetBlock(chunk_x, chunk_y, CHUNK_SIZE-1).block_type;
+                neighbour_type = chunk->GetBlockType(chunk_x, chunk_y, CHUNK_SIZE-1);
                 if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::NONE)
                 {
                     AddFace(block, BlockFace::LEFT);
@@ -108,7 +108,7 @@ void Mesh::GenerateMesh()
         }
         else
         {
-            neighbour_type = m_chunk.GetBlock(chunk_x, chunk_y, chunk_z - 1).block_type;
+            neighbour_type = m_chunk.GetBlockType(chunk_x, chunk_y, chunk_z - 1);
             if (neighbour_type == BlockType::AIR)
             {
                 AddFace(block, BlockFace::LEFT);
@@ -120,7 +120,7 @@ void Mesh::GenerateMesh()
             Chunk* chunk =  m_scene.GetChunk(neighbour_chunk_offset);
             if (chunk)
             {
-                neighbour_type = chunk->GetBlock(chunk_x, chunk_y, 0).block_type;
+                neighbour_type = chunk->GetBlockType(chunk_x, chunk_y, 0);
                 if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::NONE)
                 {
                     AddFace(block, BlockFace::RIGHT);
@@ -129,20 +129,20 @@ void Mesh::GenerateMesh()
         }
         else
         {
-            neighbour_type = m_chunk.GetBlock(chunk_x, chunk_y, chunk_z + 1).block_type;
+            neighbour_type = m_chunk.GetBlockType(chunk_x, chunk_y, chunk_z + 1);
             if (neighbour_type == BlockType::AIR)
             {
                 AddFace(block, BlockFace::RIGHT);
             }
         }
 
-        neighbour_type = m_chunk.GetBlock(chunk_x, chunk_y + 1, chunk_z).block_type;
+        neighbour_type = m_chunk.GetBlockType(chunk_x, chunk_y + 1, chunk_z);
         if (neighbour_type == BlockType::AIR)
         {
             AddFace(block, BlockFace::TOP);
         }
 
-        neighbour_type = m_chunk.GetBlock(chunk_x, chunk_y - 1, chunk_z).block_type;
+        neighbour_type = m_chunk.GetBlockType(chunk_x, chunk_y - 1, chunk_z);
         if (neighbour_type == BlockType::AIR)
         {
             AddFace(block, BlockFace::BOTTOM);

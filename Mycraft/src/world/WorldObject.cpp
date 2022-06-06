@@ -43,3 +43,8 @@ glm::vec3 WorldObject::GetEulerAngles()
 {
     return glm::eulerAngles(this->orientation);
 }
+
+glm::vec3 WorldObject::GetHeadingVector()
+{
+    return glm::normalize(glm::inverse(this->orientation)*glm::vec3(0.0f, 0.0f, -1.0f));
+}

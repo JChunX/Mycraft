@@ -22,7 +22,8 @@ public:
     void Generate();
     void Update();
     void SetBlock(int x, int y, int z, Block& block);
-    Block GetBlock(int x, int y, int z);
+    Block* GetBlock(int x, int y, int z);
+    BlockType GetBlockType(int x, int y, int z);
     int GetIndex(int x, int y, int z);
     static bool IsInChunk(int x, int y, int z);
 };

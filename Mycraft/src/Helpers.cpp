@@ -18,4 +18,7 @@ void log_debug(WorldObject& object)
 	// print object's rotation, convert rads to degrees
 	glm::vec3 rotation = object.GetEulerAngles();
 	std::cout << "Rotations: " << rotation.x * 180.0f / glm::pi<float>() << ", " << rotation.y * 180.0f / glm::pi<float>() << ", " << rotation.z * 180.0f / glm::pi<float>() << std::endl;
+	// print object's heading vector
+	glm::vec3 heading = object.GetHeadingVector();
+	std::cout << "Heading: " << heading.x << ", " << heading.y << ", " << heading.z << std::endl;
 }
