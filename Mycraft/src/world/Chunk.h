@@ -1,10 +1,8 @@
 #ifndef CHUNK_H
 #define CHUNK_H
 
-#define CHUNK_SIZE 16
-#define WORLD_HEIGHT 256
-
 #include <vector>
+#include "Constants.h"
 #include "Block.h"
 #include "TerrainGenerator.h"
 
@@ -12,6 +10,7 @@ class Chunk
 {
 public:
     Chunk(int x, int z);
+    Chunk();
     ~Chunk();
 
     std::vector<Block> m_chunkdata;

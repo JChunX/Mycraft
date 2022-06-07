@@ -54,10 +54,11 @@ void Mesh::GenerateMesh()
         if (chunk_x == 0) 
         {
             neighbour_chunk_offset = std::pair<int,int>(m_chunk.m_x-CHUNK_SIZE, m_chunk.m_z);
+
             Chunk* chunk =  m_scene.GetChunk(neighbour_chunk_offset);
             if (chunk)
             {
-                neighbour_type = m_chunk.GetBlockType(CHUNK_SIZE-1, chunk_y, chunk_z);
+                neighbour_type = chunk->GetBlockType(CHUNK_SIZE-1, chunk_y, chunk_z);
                 if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::NONE)
                 {
                     AddFace(block, BlockFace::BACK);

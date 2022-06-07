@@ -1,5 +1,5 @@
-#include"InputBroadcaster.h"
-#include<iostream>
+#include "InputBroadcaster.h"
+#include <iostream>
 
 void FPS();
 

@@ -1,4 +1,4 @@
-#include"MainRenderer.h"
+#include "MainRenderer.h"
 
 MainRenderer::MainRenderer(Camera& camera) 
     : m_camera(camera),

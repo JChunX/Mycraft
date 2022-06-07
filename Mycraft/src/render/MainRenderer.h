@@ -1,11 +1,11 @@
 #ifndef MAINRENDERER_H
 #define MAINRENDERER_H
 
-#include<glad/glad.h>
-#include<GLFW/glfw3.h>
-#include"Camera.h"
-#include"Scene.h"
-#include"ChunkRenderer.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include "Camera.h"
+#include "Scene.h"
+#include "ChunkRenderer.h"
 
 class MainRenderer
 {

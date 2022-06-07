@@ -1,4 +1,4 @@
-#include"Shader.h"
+#include "Shader.h"
 #include <cstring>
 
 // Reads a text file and outputs a string with everything in the text file

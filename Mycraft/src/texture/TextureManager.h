@@ -1,12 +1,12 @@
 #ifndef TEXTUREMANAGER_H
 #define TEXTUREMANAGER_H
 
-#include"Texture.h"
-#include"Block.h"
-#include"nlohmann/json.hpp"
-#include<utility>
-#include<map>
-#include<string>
+#include "Texture.h"
+#include "Block.h"
+#include "nlohmann/json.hpp"
+#include <utility>
+#include <map>
+#include <string>
 
 
 using TextureOffsets = std::pair<float, float>;

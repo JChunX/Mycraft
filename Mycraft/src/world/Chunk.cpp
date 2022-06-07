@@ -1,4 +1,4 @@
-#include"Chunk.h"
+#include "Chunk.h"
 
 Chunk::Chunk(int x, int z)
     : m_x(x),
@@ -7,6 +7,11 @@ Chunk::Chunk(int x, int z)
 {
     m_chunkdata = std::vector<Block>(CHUNK_SIZE * CHUNK_SIZE * WORLD_HEIGHT);
     Generate();
+}
+
+Chunk::Chunk() 
+{
+
 }
 
 void Chunk::Generate()

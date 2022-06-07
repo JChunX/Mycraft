@@ -1,7 +1,7 @@
 #include "Texture.h"
-#include"stb/stb_image.h"
+#include "stb/stb_image.h"
 
-#include<iostream>
+#include <iostream>
 
 Texture::Texture(GLenum texType, const char* path, GLenum format, GLenum pixelType)
 {

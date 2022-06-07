@@ -1,8 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#define CHUNK_LOAD_DISTANCE 6
-
+#include "Constants.h"
 #include "Camera.h"
 #include "Chunk.h"
 #include "Player.h"

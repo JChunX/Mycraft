@@ -1,11 +1,11 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include"Chunk.h"
-#include"TextureManager.h"
-#include"VAO.h"
-#include"VBO.h"
-#include"Scene.h"
+#include "Chunk.h"
+#include "TextureManager.h"
+#include "VAO.h"
+#include "VBO.h"
+#include "Scene.h"
 
 class Mesh
 {

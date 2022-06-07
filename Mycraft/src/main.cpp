@@ -1,6 +1,6 @@
-#include<iostream>
-#include"Application.h"
-#include<filesystem>
+#include <iostream>
+#include "Application.h"
+#include <filesystem>
 int main()
 {
 	// print current directory
