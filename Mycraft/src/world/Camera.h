@@ -28,7 +28,7 @@ public:
 
     bool first_click = true;
 
-    float speed = 0.1f;
+    float speed = 0.5f;
     float sensitivity = 100.0f;
 
     float last_time;

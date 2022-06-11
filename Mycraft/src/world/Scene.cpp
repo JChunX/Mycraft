@@ -8,16 +8,27 @@ Scene::Scene(Camera& camera)
 
 void Scene::Begin(bool* terminate_flag)
 {
+    float last_update = glfwGetTime();
+    float delta;
     while (!(*terminate_flag))
     {
-        Update();
+        // only update if enough time has passed
+        delta = glfwGetTime() - last_update;
+        if (delta > 1.0f/SCENE_UPDATE_FREQ)
+        {
+            Update();
+            last_update = glfwGetTime();
+        }
+
     }
 }
 
 void Scene::Update()
 {
     glm::vec3 position = m_camera.position;
+
     LoadChunks(position.x, position.z);
+
     //print camera heading
     glm::vec3 heading = m_camera.GetHeadingVector();
     Block* current_block = GetRaycastTarget(position, heading);
@@ -47,7 +58,9 @@ void Scene::LoadChunks(int x, int z)
         ++next_it;
         if (!ShouldRender(min_xc, min_zc, max_xc, max_zc, it->second))
         {
+            std::unique_lock<std::mutex> lock(m_chunks_mutex);
             m_current_chunks.erase(it);
+            lock.unlock();
             m_meshes.erase(it->first);
             // print erase
             std::cout << "erase" << std::endl;
@@ -74,7 +87,7 @@ void Scene::LoadChunks(int x, int z)
                 {
                     for (int neighbor_idx_z=-1; neighbor_idx_z<=1; neighbor_idx_z++)
                     {
-                        if (neighbor_idx_x == 0 && neighbor_idx_z == 0)
+                        if ((neighbor_idx_x == 0 && neighbor_idx_z == 0) || (neighbor_idx_x != 0 && neighbor_idx_z != 0))
                         {
                             continue;
                         }

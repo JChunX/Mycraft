@@ -37,6 +37,7 @@ void Mesh::Buffer()
 
 void Mesh::GenerateMesh()
 {
+
     for (auto block : m_chunk.m_chunkdata)
     {
         if (block.block_type == BlockType::AIR 

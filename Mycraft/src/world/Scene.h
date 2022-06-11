@@ -2,6 +2,7 @@
 #define SCENE_H
 
 #define CHUNK_LOAD_DISTANCE 6
+#define SCENE_UPDATE_FREQ 60
 
 class Mesh; 
 
@@ -11,6 +12,7 @@ class Mesh;
 #include "Mesh.h"
 #include <map>
 #include <thread>
+#include <mutex>
 
 class Scene
 {
@@ -23,6 +25,8 @@ public:
     //Player& m_player;
     Camera& m_camera;
     Block* current_block;
+
+    std::mutex m_chunks_mutex;
 
     void Begin(bool* terminate_flag);
     void Update();
