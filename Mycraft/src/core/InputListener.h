@@ -1,8 +1,8 @@
 #ifndef INPUTLISTENER_H
 #define INPUTLISTENER_H
 
-#include "UserInputs.h"
-#include <iostream>
+#include"UserInputs.h"
+#include<iostream>
 
 class InputListener
 {

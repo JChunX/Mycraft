@@ -1,5 +1,5 @@
-#include "VBO.h"
-#include <iostream>
+#include"VBO.h"
+#include<iostream>
 
 // Constructor that generates a Vertex Buffer Object and links it to vertices
 // Note: use size as input because sizeof(vertices) not the same after vertices passed into function as pointer

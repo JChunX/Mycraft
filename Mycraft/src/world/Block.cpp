@@ -11,8 +11,3 @@ Block::Block()
 {
     this->block_type = BlockType::NONE;
 }
-
-void Block::Tick(float delta_time)
-{
-
-}

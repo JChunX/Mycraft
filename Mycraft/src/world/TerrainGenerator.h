@@ -1,8 +1,8 @@
 #ifndef TERRAINGENERATOR_H
 #define TERRAINGENERATOR_H
 
-#include "Terrain.h"
-#include "fastnoise/FastNoiseLite.h"
+#include"Terrain.h"
+#include"fastnoise/FastNoiseLite.h"
 
 #define NUM_HEIGHT_OCATVES 4
 

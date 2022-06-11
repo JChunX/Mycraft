@@ -1,5 +1,5 @@
-#include "Camera.h"
-#include "Shader.h"
+#include"Camera.h"
+#include"Shader.h"
 
 Camera::Camera(int width, int height,
                float FOVdeg,
@@ -103,6 +103,9 @@ void Camera::Input(GLFWwindow* window, UserInput& user_input, float delta_time)
 			case GLFW_KEY_LEFT_SHIFT:
 				position -= glm::vec3(0.0f, speed, 0.0f);
 				break;
+			case GLFW_KEY_LEFT_CONTROL:
+				speed = 15.0f * delta_time;
+				break;
 			default:
 				break;
 			}
@@ -134,6 +137,11 @@ void Camera::Input(GLFWwindow* window, UserInput& user_input, float delta_time)
 					}
 					break;
 				}
+
+					
+				
+			case GLFW_KEY_LEFT_CONTROL:
+				speed = 5.0f * delta_time;
 				break;
 			default:
 				break;
@@ -181,9 +189,4 @@ void Camera::Input(GLFWwindow* window, UserInput& user_input, float delta_time)
 			glfwSetCursorPos(window, (width / 2), (height / 2));
 		}
 	}
-}
-
-void Camera::Tick(float delta_time)
-{
-	
 }

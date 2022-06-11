@@ -1,4 +1,4 @@
-#include "BlockRenderer.h"
+#include"BlockRenderer.h"
 
 BlockRenderer::BlockRenderer(const char* texture_path, float* vertices, int length)
  : texture_atlas(GL_TEXTURE_2D, texture_path, GL_RGBA, GL_UNSIGNED_BYTE), 

@@ -1,4 +1,4 @@
-#include "WorldObject.h"
+#include"WorldObject.h"
 
 WorldObject::WorldObject(glm::vec3 position, glm::quat orientation)
     : position(position),
