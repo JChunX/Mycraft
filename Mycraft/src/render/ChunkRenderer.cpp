@@ -23,12 +23,12 @@ void ChunkRenderer::Render(Scene& scene, TextureManager& texture_manager)
         if (chunk->need_mesh_update) {
             Mesh mesh(scene, kv.first, texture_manager);
             // try inserting mesh into map
-            auto result = m_meshes.insert({kv.first, mesh});
+            auto result = scene.m_meshes.insert({kv.first, mesh});
             // if key already exists, replace it
             if (!result.second) 
             {
-                m_meshes.erase(result.first);
-                m_meshes.insert({kv.first, mesh});
+                scene.m_meshes.erase(result.first);
+                scene.m_meshes.insert({kv.first, mesh});
             }
             mesh.Render();
             chunk->need_mesh_update = false;
@@ -37,7 +37,7 @@ void ChunkRenderer::Render(Scene& scene, TextureManager& texture_manager)
         }
     }
 
-    for (auto& kv : m_meshes)
+    for (auto& kv : scene.m_meshes)
     {
         kv.second.Render();
     }

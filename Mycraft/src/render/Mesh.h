@@ -1,6 +1,8 @@
 #ifndef MESH_H
 #define MESH_H
 
+class Scene;
+
 #include"Chunk.h"
 #include"TextureManager.h"
 #include"VAO.h"

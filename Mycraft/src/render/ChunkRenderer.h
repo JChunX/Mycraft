@@ -12,7 +12,7 @@ class ChunkRenderer
 public:
     Shader m_shader;
     Camera& m_camera;
-    std::map<std::pair<int, int>, Mesh> m_meshes;
+    
     ChunkRenderer(Camera& camera);
     ~ChunkRenderer();
     void Render(Scene& scene, TextureManager& texture_manager);

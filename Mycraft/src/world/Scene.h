@@ -3,9 +3,12 @@
 
 #define CHUNK_LOAD_DISTANCE 6
 
+class Mesh; 
+
 #include "Camera.h"
 #include "Chunk.h"
 #include "Player.h"
+#include "Mesh.h"
 #include <map>
 #include <thread>
 
@@ -16,6 +19,7 @@ public:
     ~Scene();
 
     std::map<std::pair<int, int>, Chunk> m_current_chunks;
+    std::map<std::pair<int, int>, Mesh> m_meshes;
     //Player& m_player;
     Camera& m_camera;
     Block* current_block;

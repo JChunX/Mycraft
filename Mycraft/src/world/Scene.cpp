@@ -40,6 +40,7 @@ void Scene::LoadChunks(int x, int z)
         if (!ShouldRender(min_xc, min_zc, max_xc, max_zc, it->second))
         {
             m_current_chunks.erase(it);
+            m_meshes.erase(it->first);
             // print erase
             std::cout << "erase" << std::endl;
         }
