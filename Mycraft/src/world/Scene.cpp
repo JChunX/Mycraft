@@ -6,6 +6,14 @@ Scene::Scene(Camera& camera)
 
 }
 
+void Scene::Begin(bool* terminate_flag)
+{
+    while (!(*terminate_flag))
+    {
+        Update();
+    }
+}
+
 void Scene::Update()
 {
     glm::vec3 position = m_camera.position;

@@ -17,18 +17,24 @@ void Application::Run()
     glfwSetKeyCallback(m_context.window, ExitCallback);
     
     float m_last_frame = glfwGetTime();
+
+    bool terminate_flag = false;
+    std::thread scene_thread(&Scene::Begin, &m_scene, &terminate_flag);
+
     while (!glfwWindowShouldClose(m_context.window))
     {
         float delta_time = Time();
         log_debug(m_camera);
         InputBroadcaster::ReadInputs(m_context.window, delta_time);
-        m_scene.Update();
+        
         m_renderer.Render(m_scene);
         check_error(1);
 
         glfwSwapBuffers(m_context.window);
         glfwPollEvents();
     }
+    terminate_flag = true;
+    scene_thread.join();
 }
 
 float Application::Time()

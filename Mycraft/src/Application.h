@@ -1,6 +1,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include <thread>
 #include"Camera.h"
 #include"Scene.h"
 #include"MainRenderer.h"

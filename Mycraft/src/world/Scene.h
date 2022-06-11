@@ -24,6 +24,7 @@ public:
     Camera& m_camera;
     Block* current_block;
 
+    void Begin(bool* terminate_flag);
     void Update();
     void LoadChunks(int x, int z);
 
