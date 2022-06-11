@@ -61,6 +61,24 @@ void Scene::LoadChunks(int x, int z)
                 m_current_chunks.insert({key, chunk});
                 //print load 
                 std::cout << "load chunk: " << xc << " " << zc << std::endl;
+                // neighbor chunks now need update
+                for (int neighbor_idx_x=-1; neighbor_idx_x<=1; neighbor_idx_x++)
+                {
+                    for (int neighbor_idx_z=-1; neighbor_idx_z<=1; neighbor_idx_z++)
+                    {
+                        if (neighbor_idx_x == 0 && neighbor_idx_z == 0)
+                        {
+                            continue;
+                        }
+                        int neighbor_xc = xc + neighbor_idx_x * CHUNK_SIZE;
+                        int neighbor_zc = zc + neighbor_idx_z * CHUNK_SIZE;
+                        std::pair<int,int> neighbor_key = std::pair<int, int>(neighbor_xc, neighbor_zc);
+                        if (m_current_chunks.find(neighbor_key) != m_current_chunks.end())
+                        {
+                            m_current_chunks[neighbor_key].need_mesh_update = true;
+                        }
+                    }
+                }
             }
         }
     }

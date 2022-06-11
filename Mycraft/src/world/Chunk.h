@@ -12,6 +12,7 @@ class Chunk
 {
 public:
     Chunk(int x, int z);
+    Chunk();
     ~Chunk();
 
     std::vector<Block> m_chunkdata;

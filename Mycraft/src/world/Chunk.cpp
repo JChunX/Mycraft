@@ -9,6 +9,12 @@ Chunk::Chunk(int x, int z)
     Generate();
 }
 
+Chunk::Chunk()
+    : Chunk(0, 0)
+{
+
+}
+
 void Chunk::Generate()
 {
     Terrain terrain = TerrainGenerator::GenerateTerrain(m_x, m_z);
