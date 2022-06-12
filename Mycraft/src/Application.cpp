@@ -24,7 +24,7 @@ void Application::Run()
     while (!glfwWindowShouldClose(m_context.window))
     {
         float delta_time = Time();
-        log_debug(m_camera);
+        //log_debug(m_camera);
         InputBroadcaster::ReadInputs(m_context.window, delta_time);
         
         m_renderer.Render(m_scene);

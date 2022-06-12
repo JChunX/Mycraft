@@ -1,11 +1,9 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#define CHUNK_LOAD_DISTANCE 6
-#define SCENE_UPDATE_FREQ 60
-
 class Mesh; 
 
+#include "GameParameters.h"
 #include "Camera.h"
 #include "Chunk.h"
 #include "Player.h"
@@ -13,6 +11,7 @@ class Mesh;
 #include <map>
 #include <thread>
 #include <mutex>
+#include <future>
 
 class Scene
 {
@@ -27,6 +26,7 @@ public:
     Block* current_block;
 
     std::mutex m_chunks_mutex;
+    std::mutex m_meshes_mutex;
 
     void Begin(bool* terminate_flag);
     void Update();
@@ -39,9 +39,11 @@ public:
                     Chunk& chunk);
 
     Chunk* GetChunk(std::pair<int, int> chunk_coords);
-
+    std::pair<int, int> GetChunkOffset(int x, int z);
     Block* GetBlock(int x, int y, int z);
     Block* GetRaycastTarget(glm::vec3 position, glm::vec3 heading);
+private:
+    void LoadChunkAux(std::pair<int,int> chunk_coords);
 
 };
 

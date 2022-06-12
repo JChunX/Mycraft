@@ -45,8 +45,7 @@ void Scene::LoadChunks(int x, int z)
     glm::vec2 nearest_chunk_offset = static_cast<float>(CHUNK_SIZE) * glm::vec2(round(x / CHUNK_SIZE), round(z / CHUNK_SIZE));
     int xc0 = nearest_chunk_offset.x;
     int zc0 = nearest_chunk_offset.y;
-    //print the xc0, zc0
-    std::cout << "xc0: " << xc0 << " zc0: " << zc0 << std::endl;
+
     int min_xc = xc0 - CHUNK_LOAD_DISTANCE * CHUNK_SIZE;
     int min_zc = zc0 - CHUNK_LOAD_DISTANCE * CHUNK_SIZE;
     int max_xc = xc0 + (CHUNK_LOAD_DISTANCE-1) * CHUNK_SIZE;
@@ -58,11 +57,14 @@ void Scene::LoadChunks(int x, int z)
         ++next_it;
         if (!ShouldRender(min_xc, min_zc, max_xc, max_zc, it->second))
         {
-            std::unique_lock<std::mutex> lock(m_chunks_mutex);
+            std::unique_lock<std::mutex> chunk_lock(m_chunks_mutex);
+            std::unique_lock<std::mutex> mesh_lock(m_meshes_mutex);
+
+            m_meshes.erase(it->first);(m_chunks_mutex);
             m_current_chunks.erase(it);
-            lock.unlock();
-            m_meshes.erase(it->first);
-            // print erase
+            
+            chunk_lock.unlock();
+            mesh_lock.unlock();
             std::cout << "erase" << std::endl;
         }
     }
@@ -78,29 +80,38 @@ void Scene::LoadChunks(int x, int z)
             // if not in occupancy, load chunk
             if (m_current_chunks.find(key) == m_current_chunks.end())
             {
-                Chunk chunk(xc, zc);
-                m_current_chunks.insert({key, chunk});
-                //print load 
-                std::cout << "load chunk: " << xc << " " << zc << std::endl;
-                // neighbor chunks now need update
-                for (int neighbor_idx_x=-1; neighbor_idx_x<=1; neighbor_idx_x++)
-                {
-                    for (int neighbor_idx_z=-1; neighbor_idx_z<=1; neighbor_idx_z++)
-                    {
-                        if ((neighbor_idx_x == 0 && neighbor_idx_z == 0) || (neighbor_idx_x != 0 && neighbor_idx_z != 0))
-                        {
-                            continue;
-                        }
-                        int neighbor_xc = xc + neighbor_idx_x * CHUNK_SIZE;
-                        int neighbor_zc = zc + neighbor_idx_z * CHUNK_SIZE;
-                        std::pair<int,int> neighbor_key = std::pair<int, int>(neighbor_xc, neighbor_zc);
-                        if (m_current_chunks.find(neighbor_key) != m_current_chunks.end())
-                        {
-                            m_current_chunks[neighbor_key].need_mesh_update = true;
-                        }
-                    }
-                }
+                auto res = std::async(&Scene::LoadChunkAux, this, key);
             }
+        }
+    }
+}
+
+void Scene::LoadChunkAux(std::pair<int,int> chunk_coords)
+{
+    int xc = chunk_coords.first;
+    int zc = chunk_coords.second;
+    Chunk chunk(xc, zc);
+    m_current_chunks.insert({chunk_coords, chunk});
+    //print load 
+    std::cout << "load chunk: " << xc << " " << zc << std::endl;
+    // neighbor chunks now need update
+    for (int neighbor_idx_x=-1; neighbor_idx_x<=1; neighbor_idx_x++)
+    {
+        for (int neighbor_idx_z=-1; neighbor_idx_z<=1; neighbor_idx_z++)
+        {
+            if ((neighbor_idx_x == 0 && neighbor_idx_z == 0) || (neighbor_idx_x != 0 && neighbor_idx_z != 0))
+            {
+                continue;
+            }
+            int neighbor_xc = xc + neighbor_idx_x * CHUNK_SIZE;
+            int neighbor_zc = zc + neighbor_idx_z * CHUNK_SIZE;
+            std::pair<int,int> neighbor_key = std::pair<int, int>(neighbor_xc, neighbor_zc);
+            std::unique_lock<std::mutex> lock(m_chunks_mutex);
+            if (m_current_chunks.find(neighbor_key) != m_current_chunks.end())
+            {
+                m_current_chunks[neighbor_key].need_mesh_update = true;
+            }
+            lock.unlock();
         }
     }
 }
@@ -127,16 +138,41 @@ Chunk* Scene::GetChunk(std::pair<int, int> chunk_coords)
     }
 }
 
+std::pair<int, int> Scene::GetChunkOffset(int x, int z)
+{
+    int xc, zc;
+    if (xc >= 0)
+    {
+        xc = floor(static_cast<float>(x)/CHUNK_SIZE) * CHUNK_SIZE;
+    }
+    else
+    {
+        xc = ceil(static_cast<float>(x)/CHUNK_SIZE) * CHUNK_SIZE;
+    }
+
+    if (zc >= 0)
+    {
+        zc = floor(static_cast<float>(z)/CHUNK_SIZE) * CHUNK_SIZE;
+    }
+    else
+    {
+        zc = ceil(static_cast<float>(z)/CHUNK_SIZE) * CHUNK_SIZE;
+    }
+
+    return std::pair<int, int>(xc, zc);
+}
+
 Block* Scene::GetBlock(int x, int y, int z)
 {
-    glm::vec2 nearest_chunk_offset = static_cast<float>(CHUNK_SIZE) * glm::vec2(round(x / CHUNK_SIZE), round(z / CHUNK_SIZE));
-    int xc0 = nearest_chunk_offset.x;
-    int zc0 = nearest_chunk_offset.y;
-    std::pair<int, int> chunk_coords = std::pair<int, int>(xc0, zc0);
+    std::pair<int, int> chunk_coords = GetChunkOffset(x, z);
+
     Chunk* chunk = GetChunk(chunk_coords);
     if (chunk != nullptr)
     {
-        return chunk->GetBlock(x, y, z);
+        int xc = chunk->m_x;
+        int zc = chunk->m_z;
+
+        return chunk->GetBlock(x-xc, y, z-zc);
     }
     else
     {
@@ -156,6 +192,7 @@ Block* Scene::GetRaycastTarget(glm::vec3 ray_origin, glm::vec3 ray_direction)
     while (t < t_max)
     {
         p = ray_origin + ray_direction * t;
+
         Block* block = GetBlock(p.x, p.y, p.z);
         if (block != nullptr && block->block_type != BlockType::AIR)
         {

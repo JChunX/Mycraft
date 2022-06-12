@@ -1,12 +1,12 @@
 #ifndef CHUNK_H
 #define CHUNK_H
 
-#define CHUNK_SIZE 16
-#define WORLD_HEIGHT 256
-
 #include <vector>
+#include <future>
 #include "Block.h"
 #include "TerrainGenerator.h"
+#include "Terrain.h"
+#include "GameParameters.h"
 
 class Chunk 
 {
@@ -19,6 +19,7 @@ public:
     int m_x;
     int m_z;
     bool need_mesh_update;
+    Terrain m_terrain;
 
     void Generate();
     void Update();
@@ -27,6 +28,9 @@ public:
     BlockType GetBlockType(int x, int y, int z);
     int GetIndex(int x, int y, int z);
     static bool IsInChunk(int x, int y, int z);
+
+private:
+    void GenerateAux(int zmin, int zmax);
 };
 
 #endif // CHUNK_H

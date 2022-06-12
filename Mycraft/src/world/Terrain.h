@@ -1,7 +1,7 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
-#include "Chunk.h"
+#include "GameParameters.h"
 
 struct Terrain 
 {

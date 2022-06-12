@@ -3,7 +3,8 @@
 Chunk::Chunk(int x, int z)
     : m_x(x),
       m_z(z),
-      need_mesh_update(true)
+      need_mesh_update(true),
+      m_terrain(TerrainGenerator::GenerateTerrain(m_x, m_z))
 {
     m_chunkdata = std::vector<Block>(CHUNK_SIZE * CHUNK_SIZE * WORLD_HEIGHT);
     Generate();
@@ -17,12 +18,18 @@ Chunk::Chunk()
 
 void Chunk::Generate()
 {
-    Terrain terrain = TerrainGenerator::GenerateTerrain(m_x, m_z);
+    auto res1 = std::async(&Chunk::GenerateAux, this, 0, WORLD_HEIGHT);
+    auto res2 = std::async(&Chunk::GenerateAux, this, WORLD_HEIGHT/4, WORLD_HEIGHT/2);
+    auto res3 = std::async(&Chunk::GenerateAux, this, WORLD_HEIGHT/2, WORLD_HEIGHT*3/4);
+    auto res4 = std::async(&Chunk::GenerateAux, this, WORLD_HEIGHT*3/4, WORLD_HEIGHT);
+}
 
-    for (int z = 0; z < CHUNK_SIZE; z++) {
+void Chunk::GenerateAux(int ymin, int ymax)
+{
+    for (int y = ymin; y < ymax; y++) {
         for (int x = 0; x < CHUNK_SIZE; x++) {
-            float height = terrain.height[x][z] * WORLD_HEIGHT/8 + 40;
-            for (int y = 0; y < WORLD_HEIGHT; y++) {
+            for (int z = 0; z < CHUNK_SIZE; z++) {
+                float height = m_terrain.height[x][z] * WORLD_HEIGHT/8 + 40;
                 glm::vec3 block_position = glm::vec3(m_x+x,y,m_z+z);
                 if (y == 0) 
                 {

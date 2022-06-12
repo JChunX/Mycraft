@@ -17,7 +17,7 @@ struct TerrainParameters
 class TerrainGenerator
 {
 public:
-    static constexpr TerrainParameters parameters = {12345, {1.0f, 0.6f, 0.4f, 0.2f}, 1.0f};
+    static constexpr TerrainParameters parameters = {12345, {1.0f, 0.6f, 0.4f, 0.2f}, 1.5f};
 
     static Terrain GenerateTerrain(int x, int z);
 };
