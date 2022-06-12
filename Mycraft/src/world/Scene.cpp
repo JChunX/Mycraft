@@ -141,23 +141,9 @@ Chunk* Scene::GetChunk(std::pair<int, int> chunk_coords)
 std::pair<int, int> Scene::GetChunkOffset(int x, int z)
 {
     int xc, zc;
-    if (xc >= 0)
-    {
-        xc = floor(static_cast<float>(x)/CHUNK_SIZE) * CHUNK_SIZE;
-    }
-    else
-    {
-        xc = ceil(static_cast<float>(x)/CHUNK_SIZE) * CHUNK_SIZE;
-    }
 
-    if (zc >= 0)
-    {
-        zc = floor(static_cast<float>(z)/CHUNK_SIZE) * CHUNK_SIZE;
-    }
-    else
-    {
-        zc = ceil(static_cast<float>(z)/CHUNK_SIZE) * CHUNK_SIZE;
-    }
+    xc = floor(static_cast<float>(x)/CHUNK_SIZE) * CHUNK_SIZE;
+    zc = floor(static_cast<float>(z)/CHUNK_SIZE) * CHUNK_SIZE;
 
     return std::pair<int, int>(xc, zc);
 }

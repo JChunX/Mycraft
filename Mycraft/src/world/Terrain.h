@@ -6,6 +6,8 @@
 struct Terrain 
 {
     float height[CHUNK_SIZE][CHUNK_SIZE];
+    float moisture[CHUNK_SIZE][CHUNK_SIZE];
+    float temperature[CHUNK_SIZE][CHUNK_SIZE];
 
 };
 

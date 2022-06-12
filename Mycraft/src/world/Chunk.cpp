@@ -29,13 +29,13 @@ void Chunk::GenerateAux(int ymin, int ymax)
     for (int y = ymin; y < ymax; y++) {
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int z = 0; z < CHUNK_SIZE; z++) {
-                float height = m_terrain.height[x][z] * WORLD_HEIGHT/8 + 40;
+                float height = m_terrain.height[x][z];
                 glm::vec3 block_position = glm::vec3(m_x+x,y,m_z+z);
                 if (y == 0) 
                 {
                     m_chunkdata[GetIndex(x, y, z)] = Block(BlockType::BEDROCK, block_position);
                 }
-                else if (y <= height - 5) {
+                else if (y <= height - 2) {
                     m_chunkdata[GetIndex(x, y, z)] = Block(BlockType::STONE, block_position);
                 }
                 else if (y <= height - 1) {

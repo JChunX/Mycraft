@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 project(Mycraft VERSION 1.0)
 add_subdirectory(shaders)
-add_subdirectory(textures)
+add_subdirectory(resources)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)

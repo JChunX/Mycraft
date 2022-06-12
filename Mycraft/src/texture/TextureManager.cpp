@@ -2,11 +2,11 @@
 
 TextureManager::TextureManager() 
     : m_texture(Texture(GL_TEXTURE_2D, 
-                "textures/default_pack.png", 
+                "resources/default_pack.png", 
                 GL_RGBA, 
                 GL_UNSIGNED_BYTE))
 {
-    LoadTextureOffsets("textures/default_pack_offsets.json");
+    LoadTextureOffsets("resources/default_pack_offsets.json");
     BindTexture();
 }
 

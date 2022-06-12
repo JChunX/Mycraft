@@ -1,0 +1,25 @@
+{
+    "mountains":
+    {
+        "octaves": [2.0, 0.6, 0.4, 0.2],
+        "exponent": 1.0,
+        "scale": 0.6,
+        "amp": 1.5
+    },
+
+    "plains":
+    {
+        "octaves": [1.0, 0.3, 0.1, 0.1],
+        "exponent": 0.4,
+        "scale": 0.5,
+        "amp": 14.0
+    },
+
+    "rolling_hills":
+    {
+        "octaves": [1.0, 0.3, 0.1, 0.1],
+        "exponent": 1.2,
+        "scale": 1.0,
+        "amp": 9.0
+    }
+}
