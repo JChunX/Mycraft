@@ -61,6 +61,12 @@ std::pair<float,float> TextureManager::RetrieveTextureOffsets(BlockType type, Bl
     case BlockType::SAND:   
         texture_coords = m_texture_coords["sand"];
         break;
+    case BlockType::WATER:
+        texture_coords = m_texture_coords["water"];
+        break;
+    case BlockType::GRAVEL:
+        texture_coords = m_texture_coords["gravel"];
+        break;
     default:
         texture_coords = m_texture_coords["grass"];
         break;

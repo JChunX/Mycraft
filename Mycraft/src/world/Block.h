@@ -16,7 +16,8 @@ enum class BlockType
     LEAF,
     SAND,
     WATER,
-    NONE
+    NONE,
+    GRAVEL
 };
 
 
@@ -33,6 +34,10 @@ enum class BlockFace
 class Block : public WorldObject
 {
 public:
+
+    float temperature;
+    float moisture;
+
     Block(BlockType block_type, glm::vec3 position);
     Block();
     BlockType block_type;

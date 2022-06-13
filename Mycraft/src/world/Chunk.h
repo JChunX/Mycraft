@@ -7,6 +7,9 @@
 #include "TerrainGenerator.h"
 #include "Terrain.h"
 #include "GameParameters.h"
+#include "BiomeManager.h"
+
+struct Terrain;
 
 class Chunk 
 {
@@ -19,7 +22,7 @@ public:
     int m_x;
     int m_z;
     bool need_mesh_update;
-    Terrain m_terrain;
+    std::shared_ptr<Terrain> m_terrain;
 
     void Generate();
     void Update();
@@ -28,9 +31,6 @@ public:
     BlockType GetBlockType(int x, int y, int z);
     int GetIndex(int x, int y, int z);
     static bool IsInChunk(int x, int y, int z);
-
-private:
-    void GenerateAux(int zmin, int zmax);
 };
 
 #endif // CHUNK_H

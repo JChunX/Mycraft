@@ -1,28 +1,29 @@
 #ifndef TERRAINGENERATOR_H
 #define TERRAINGENERATOR_H
 
-#include"Terrain.h"
-#include"fastnoise/FastNoiseLite.h"
+#include <numeric>
+#include <memory>
+#include "Terrain.h"
+#include "BiomeManager.h"
+#include "fastnoise/FastNoiseLite.h"
 
-#define NUM_OCTAVES 4
+#define NUM_OCTAVES 6
 
 struct PerlinParameters 
 {
-    float height_octaves[NUM_OCTAVES];
-    float height_exp;
-    float height_scale;
+    float octaves[NUM_OCTAVES];
+    float exp;
+    float scale;
+    float amp_mod;
+    float offset;
 };
 
 struct TerrainParameters
 {
     int seed;
-    //PerlinParameters height_params;
-    //PerlinParameters moisture_params;
-    //PerlinParameters temperature_params;
-    float height_octaves[NUM_OCTAVES];
-    float height_exp;
-    float height_scale;
-    float height_amplitude_mod;
+    PerlinParameters height_perlin;
+    PerlinParameters moisture_perlin;
+    PerlinParameters temperature_perlin;
 };
 
 class TerrainGenerator
@@ -31,13 +32,15 @@ public:
     static constexpr TerrainParameters parameters = 
     {
         12345, 
-        {1.0f, 0.3f, 0.1f, 0.1f}, 
-        1.2f,
-        1.0f,
-        9.0f
+        {{2.0f, 0.6f, 0.4f, 0.2f, 0.1f, 0.1f}, 
+            1.0f, 0.6f, WORLD_HEIGHT/1.5f, WORLD_FLOOR-10.0f}, 
+        {{2.0f, 0.6f, 0.4f, 0.2f, 0.1f, 0.1f}, 
+            1.0f, 0.6f, 0.0f, 0.0f},
+        {{2.0f, 0.6f, 0.4f, 0.2f, 0.1f, 0.1f}, 
+            1.0f, 0.2f, 0.0f, 0.0f}
     };
 
-    static Terrain GenerateTerrain(int x, int z);
+    static std::shared_ptr<Terrain> GenerateTerrain(int x, int z);
 };
 
 #endif // TERRAINGENERATOR_H

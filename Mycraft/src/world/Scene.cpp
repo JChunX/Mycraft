@@ -106,12 +106,12 @@ void Scene::LoadChunkAux(std::pair<int,int> chunk_coords)
             int neighbor_xc = xc + neighbor_idx_x * CHUNK_SIZE;
             int neighbor_zc = zc + neighbor_idx_z * CHUNK_SIZE;
             std::pair<int,int> neighbor_key = std::pair<int, int>(neighbor_xc, neighbor_zc);
-            std::unique_lock<std::mutex> lock(m_chunks_mutex);
+            //std::unique_lock<std::mutex> lock(m_chunks_mutex);
             if (m_current_chunks.find(neighbor_key) != m_current_chunks.end())
             {
                 m_current_chunks[neighbor_key].need_mesh_update = true;
             }
-            lock.unlock();
+            //lock.unlock();
         }
     }
 }

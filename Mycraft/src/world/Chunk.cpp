@@ -18,38 +18,13 @@ Chunk::Chunk()
 
 void Chunk::Generate()
 {
-    auto res1 = std::async(&Chunk::GenerateAux, this, 0, WORLD_HEIGHT);
-    auto res2 = std::async(&Chunk::GenerateAux, this, WORLD_HEIGHT/4, WORLD_HEIGHT/2);
-    auto res3 = std::async(&Chunk::GenerateAux, this, WORLD_HEIGHT/2, WORLD_HEIGHT*3/4);
-    auto res4 = std::async(&Chunk::GenerateAux, this, WORLD_HEIGHT*3/4, WORLD_HEIGHT);
-}
+    std::vector<BlockType> layers = BiomeManager::GetBlockLayers(m_terrain->biome_type);
 
-void Chunk::GenerateAux(int ymin, int ymax)
-{
-    for (int y = ymin; y < ymax; y++) {
-        for (int x = 0; x < CHUNK_SIZE; x++) {
-            for (int z = 0; z < CHUNK_SIZE; z++) {
-                float height = m_terrain.height[x][z];
-                glm::vec3 block_position = glm::vec3(m_x+x,y,m_z+z);
-                if (y == 0) 
-                {
-                    m_chunkdata[GetIndex(x, y, z)] = Block(BlockType::BEDROCK, block_position);
-                }
-                else if (y <= height - 2) {
-                    m_chunkdata[GetIndex(x, y, z)] = Block(BlockType::STONE, block_position);
-                }
-                else if (y <= height - 1) {
-                    m_chunkdata[GetIndex(x, y, z)] = Block(BlockType::DIRT, block_position);
-                }
-                else if (y <= height) {
-                    m_chunkdata[GetIndex(x, y, z)] = Block(BlockType::GRASS, block_position);
-                }
-                else {
-                    m_chunkdata[GetIndex(x, y, z)] = Block(BlockType::AIR, block_position);
-                }
-            }
-        }
-    }
+    //auto res1 = std::async(&BiomeManager::GenerateBiomes, *this, 0, WORLD_HEIGHT, layers);
+    //auto res2 = std::async(&BiomeManager::GenerateBiomes, *this, WORLD_HEIGHT/4, WORLD_HEIGHT/2, layers);
+    //auto res3 = std::async(&BiomeManager::GenerateBiomes, *this, WORLD_HEIGHT/2, WORLD_HEIGHT*3/4, layers);
+    //auto res4 = std::async(&BiomeManager::GenerateBiomes, *this, WORLD_HEIGHT*3/4, WORLD_HEIGHT, layers);
+    BiomeManager::GenerateBiomes(*this, 0, WORLD_HEIGHT, layers);
 }
 
 void Chunk::Update()
