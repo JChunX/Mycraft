@@ -1,20 +1,23 @@
 #include "Mesh.h"
+#include "Helpers.h"
 
 Mesh::Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& texture_manager)
     : m_scene(scene),
       m_chunk(*(scene.GetChunk(chunk_offset))),
       m_texture_manager(texture_manager),
       m_vao(VAO()),
-      m_vertices(std::vector<float>())
+      m_vbo(VBO()),
+      m_vertices(std::vector<float>()),
+      should_erase(false),
+      n_faces(0)
 {
-    n_faces = 0;
     GenerateMesh();
     Buffer();
 }
 
 Mesh::~Mesh()
 {
-
+    Delete();
 }
 
 void Mesh::Render()
@@ -23,16 +26,22 @@ void Mesh::Render()
     glDrawArrays(GL_TRIANGLES, 0, n_faces*8);
 }
 
+void Mesh::Delete()
+{
+    m_vbo.Delete();
+    m_vao.Delete();
+}
+
 void Mesh::Buffer()
 {
     m_vao.Bind();
     float* vertices = &m_vertices[0];
-    VBO vbo(vertices, n_faces*6*8*sizeof(float));
-    m_vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 8*sizeof(float), (void*)0);
-    m_vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 8*sizeof(float), (void*)(3*sizeof(float)));
-    m_vao.LinkAttrib(vbo, 2, 2, GL_FLOAT, 8*sizeof(float), (void*)(6*sizeof(float)));
+    m_vbo.Buffer(vertices, n_faces*6*8*sizeof(float)); 
+    m_vao.LinkAttrib(m_vbo, 0, 3, GL_FLOAT, 8*sizeof(float), (void*)0);
+    m_vao.LinkAttrib(m_vbo, 1, 3, GL_FLOAT, 8*sizeof(float), (void*)(3*sizeof(float)));
+    m_vao.LinkAttrib(m_vbo, 2, 2, GL_FLOAT, 8*sizeof(float), (void*)(6*sizeof(float)));
     m_vao.Unbind();
-    vbo.Unbind();
+    m_vbo.Unbind();
 }
 
 void Mesh::GenerateMesh()

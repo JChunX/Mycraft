@@ -7,5 +7,6 @@ int main()
     std::cout << "Current directory: " << std::filesystem::current_path() << std::endl;
 	Application app;
 	app.Run();
+	
 	return 0;
 }

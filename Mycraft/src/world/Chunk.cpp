@@ -6,12 +6,16 @@ Chunk::Chunk(int x, int z)
       need_mesh_update(true),
       m_terrain(TerrainGenerator::GenerateTerrain(m_x, m_z))
 {
-    m_chunkdata = std::vector<Block>(CHUNK_SIZE * CHUNK_SIZE * WORLD_HEIGHT);
+
     Generate();
 }
 
 Chunk::Chunk()
     : Chunk(0, 0)
+{
+
+}
+Chunk::~Chunk()
 {
 
 }
@@ -61,9 +65,4 @@ int Chunk::GetIndex(int x, int y, int z)
 bool Chunk::IsInChunk(int x, int y, int z)
 {
     return x >= 0 && x < CHUNK_SIZE && y >= 0 && y < WORLD_HEIGHT && z >= 0 && z < CHUNK_SIZE;
-}
-
-Chunk::~Chunk()
-{
-
 }

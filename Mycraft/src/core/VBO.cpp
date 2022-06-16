@@ -3,7 +3,13 @@
 
 // Constructor that generates a Vertex Buffer Object and links it to vertices
 // Note: use size as input because sizeof(vertices) not the same after vertices passed into function as pointer
-VBO::VBO(GLfloat* vertices, GLsizeiptr size)
+
+VBO::VBO()
+{
+
+}
+
+void VBO::Buffer(GLfloat* vertices, GLsizeiptr size)
 {
 	glGenBuffers(1, &ID);
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
@@ -25,5 +31,6 @@ void VBO::Unbind()
 // Deletes the VBO
 void VBO::Delete()
 {
+
 	glDeleteBuffers(1, &ID);
 }

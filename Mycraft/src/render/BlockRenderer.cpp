@@ -2,7 +2,7 @@
 
 BlockRenderer::BlockRenderer(const char* texture_path, float* vertices, int length)
  : texture_atlas(GL_TEXTURE_2D, texture_path, GL_RGBA, GL_UNSIGNED_BYTE), 
-   vbo(vertices, sizeof(float)*length)// sizeof(vertices) here is only the size of pointer, not the size of the array
+   vbo()// sizeof(vertices) here is only the size of pointer, not the size of the array
 {
     vao.Bind();
     vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);

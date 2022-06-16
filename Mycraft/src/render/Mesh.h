@@ -13,11 +13,14 @@ class Mesh
 {
 public:
     VAO m_vao;
+    VBO m_vbo;
+
     Scene& m_scene;
     Chunk& m_chunk;
     TextureManager& m_texture_manager;
     std::vector<float> m_vertices;
     int n_faces;
+    bool should_erase;
 
     Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& texture_manager);
 
@@ -25,6 +28,7 @@ public:
     void Render();
     void GenerateMesh();
     void Buffer();
+    void Delete();
     void AddFace(Block& block, BlockFace face);
 };
 

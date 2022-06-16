@@ -22,3 +22,4 @@ void log_debug(WorldObject& object)
 	glm::vec3 heading = object.GetHeadingVector();
 	std::cout << "Heading: " << heading.x << ", " << heading.y << ", " << heading.z << std::endl;
 }
+

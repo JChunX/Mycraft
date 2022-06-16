@@ -120,39 +120,39 @@ std::vector<BlockType> BiomeManager::GetBlockLayers(BiomeType type)
 void BiomeManager::GenerateBiomes(Chunk& chunk, int ymin, int ymax, std::vector<BlockType>& layers)
 {
     for (int y = ymin; y < ymax; y++) {
-        for (int x = 0; x < CHUNK_SIZE; x++) {
-            for (int z = 0; z < CHUNK_SIZE; z++) {
+        for (int z = 0; z < CHUNK_SIZE; z++) {
+            for (int x = 0; x < CHUNK_SIZE; x++) {
                 std::shared_ptr<Terrain> terrain = chunk.m_terrain;
                 float height = terrain->heightmap[terrain->GetIndex(x, z)];
                 glm::vec3 block_position = glm::vec3(chunk.m_x+x,y,chunk.m_z+z);
                 if (y == 0) 
                 {
-                    chunk.m_chunkdata[chunk.GetIndex(x, y, z)] = Block(BlockType::BEDROCK, block_position);
+                    chunk.m_chunkdata.emplace_back(BlockType::BEDROCK, block_position);
                 }
                 else if (y <= height - 2) {
                     // rock type
-                    chunk.m_chunkdata[chunk.GetIndex(x, y, z)] = Block(layers[0], block_position);
+                    chunk.m_chunkdata.emplace_back(layers[0], block_position);
                 }
                 else if (y <= height - 1) {
                     // below surface type
-                    chunk.m_chunkdata[chunk.GetIndex(x, y, z)] = Block(layers[1], block_position);
+                    chunk.m_chunkdata.emplace_back(layers[1], block_position);
                 }
                 else if (y <= height) {
-                    if (y == WATER_LEVEL) {
+                    if (y == WATER_LEVEL || y == WATER_LEVEL + 1) {
                         // water-adjacent block type
-                        chunk.m_chunkdata[chunk.GetIndex(x, y, z)] = Block(layers[2], block_position);
+                        chunk.m_chunkdata.emplace_back(layers[2], block_position);
                     }
                     else {
                         // surface block type
-                        chunk.m_chunkdata[chunk.GetIndex(x, y, z)] = Block(layers[3], block_position);
+                        chunk.m_chunkdata.emplace_back(layers[3], block_position);
                     }
                 }
                 else if (y <= WATER_LEVEL){
                     // "water" block type
-                    chunk.m_chunkdata[chunk.GetIndex(x, y, z)] = Block(layers[4], block_position);
+                    chunk.m_chunkdata.emplace_back(layers[4], block_position);
                 }
                 else {
-                    chunk.m_chunkdata[chunk.GetIndex(x, y, z)] = Block(BlockType::AIR, block_position);
+                    chunk.m_chunkdata.emplace_back(BlockType::AIR, block_position);
                 }
             }
         }

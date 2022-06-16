@@ -40,6 +40,7 @@ public:
 
     Block(BlockType block_type, glm::vec3 position);
     Block();
+
     BlockType block_type;
 };
 #endif

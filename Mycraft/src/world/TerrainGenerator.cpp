@@ -43,7 +43,7 @@ void GeneratePerlin(int xc, int zc, std::vector<float>& noisemap, int seed, Perl
             noise /= octave_sum;
             noise = pow(noise, exp);
             noise = noise * parameters.amp_mod + parameters.offset;
-            std::cout << noise << std::endl;
+            //std::cout << noise << std::endl;
 
             noisemap.push_back(noise);
         }   

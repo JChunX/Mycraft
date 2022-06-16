@@ -13,6 +13,7 @@ Application::Application()
 
 void Application::Run()
 {
+
     InputBroadcaster::AddListener(m_camera);
     glfwSetKeyCallback(m_context.window, ExitCallback);
     
@@ -24,7 +25,7 @@ void Application::Run()
     while (!glfwWindowShouldClose(m_context.window))
     {
         float delta_time = Time();
-        //log_debug(m_camera);
+        log_debug(m_camera);
         InputBroadcaster::ReadInputs(m_context.window, delta_time);
         
         m_renderer.Render(m_scene);
@@ -35,6 +36,12 @@ void Application::Run()
     }
     terminate_flag = true;
     scene_thread.join();
+
+    m_renderer.m_texture_manager.m_texture.Delete();
+    m_scene.m_current_chunks.clear();
+    m_scene.m_meshes.clear();
+    glfwTerminate();
+
 }
 
 float Application::Time()
@@ -42,7 +49,7 @@ float Application::Time()
     float current_frame = glfwGetTime();
     float delta_time = current_frame - m_last_frame;
     m_last_frame = current_frame;
-    //std::cout << "FPS: " << 1.0f / delta_time << std::endl;
+    std::cout << "FPS: " << 1.0f / delta_time << std::endl;
     return delta_time;
 }
 

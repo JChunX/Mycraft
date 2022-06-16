@@ -112,6 +112,7 @@ void Camera::Input(GLFWwindow* window, UserInput& user_input, float delta_time)
 			switch (key_info.key)
 			{
 			case GLFW_KEY_W:
+				//position += glm::vec3(glm::inverse(orientation) * glm::vec3(0.0f, 0.0f, -1.0f)) * speed * forward_speed_multiplier * 1.0f;
 				switch (motion_state)
 				{
 				case MotionState::SLOW:
@@ -134,6 +135,7 @@ void Camera::Input(GLFWwindow* window, UserInput& user_input, float delta_time)
 					}
 					break;
 				}
+
 			default:
 				break;
 			}

@@ -2,6 +2,8 @@
 #define APPLICATION_H
 
 #include <thread>
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 #include"Camera.h"
 #include"Scene.h"
 #include"MainRenderer.h"

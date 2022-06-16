@@ -29,7 +29,6 @@ void Scene::Update()
 
     LoadChunks(position.x, position.z);
 
-    //print camera heading
     glm::vec3 heading = m_camera.GetHeadingVector();
     Block* current_block = GetRaycastTarget(position, heading);
 
@@ -50,7 +49,7 @@ void Scene::LoadChunks(int x, int z)
     int min_zc = zc0 - CHUNK_LOAD_DISTANCE * CHUNK_SIZE;
     int max_xc = xc0 + (CHUNK_LOAD_DISTANCE-1) * CHUNK_SIZE;
     int max_zc = zc0 + (CHUNK_LOAD_DISTANCE-1) * CHUNK_SIZE;
-
+    
     // remove far chunks
     for (auto it = m_current_chunks.begin(), next_it = it; it != m_current_chunks.end(); it = next_it)
     {
@@ -59,13 +58,8 @@ void Scene::LoadChunks(int x, int z)
         {
             std::unique_lock<std::mutex> chunk_lock(m_chunks_mutex);
             std::unique_lock<std::mutex> mesh_lock(m_meshes_mutex);
-
-            m_meshes.erase(it->first);(m_chunks_mutex);
+            m_meshes.find(it->first)->second.should_erase = true;
             m_current_chunks.erase(it);
-            
-            chunk_lock.unlock();
-            mesh_lock.unlock();
-            std::cout << "erase" << std::endl;
         }
     }
 
@@ -90,10 +84,9 @@ void Scene::LoadChunkAux(std::pair<int,int> chunk_coords)
 {
     int xc = chunk_coords.first;
     int zc = chunk_coords.second;
-    Chunk chunk(xc, zc);
-    m_current_chunks.insert({chunk_coords, chunk});
-    //print load 
-    std::cout << "load chunk: " << xc << " " << zc << std::endl;
+
+    m_current_chunks.try_emplace(chunk_coords, xc, zc);
+
     // neighbor chunks now need update
     for (int neighbor_idx_x=-1; neighbor_idx_x<=1; neighbor_idx_x++)
     {
@@ -106,7 +99,7 @@ void Scene::LoadChunkAux(std::pair<int,int> chunk_coords)
             int neighbor_xc = xc + neighbor_idx_x * CHUNK_SIZE;
             int neighbor_zc = zc + neighbor_idx_z * CHUNK_SIZE;
             std::pair<int,int> neighbor_key = std::pair<int, int>(neighbor_xc, neighbor_zc);
-            //std::unique_lock<std::mutex> lock(m_chunks_mutex);
+            
             if (m_current_chunks.find(neighbor_key) != m_current_chunks.end())
             {
                 m_current_chunks[neighbor_key].need_mesh_update = true;
