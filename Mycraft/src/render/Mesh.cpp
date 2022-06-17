@@ -1,7 +1,7 @@
 #include "Mesh.h"
 #include "Helpers.h"
 
-Mesh::Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& texture_manager)
+Mesh::Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& texture_manager, float temperature, float moisture)
     : m_scene(scene),
       m_chunk(*(scene.GetChunk(chunk_offset))),
       m_texture_manager(texture_manager),
@@ -9,10 +9,18 @@ Mesh::Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& textu
       m_vbo(VBO()),
       m_vertices(std::vector<float>()),
       should_erase(false),
-      n_faces(0)
+      n_faces(0),
+      m_temperature(temperature),
+      m_moisture(moisture)
 {
     GenerateMesh();
     Buffer();
+}
+
+Mesh::Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& texture_manager)
+    : Mesh(scene, chunk_offset, texture_manager, 16.0f, 16.0f)
+{
+
 }
 
 Mesh::~Mesh()
@@ -23,7 +31,7 @@ Mesh::~Mesh()
 void Mesh::Render()
 {
     m_vao.Bind();
-    glDrawArrays(GL_TRIANGLES, 0, n_faces*8);
+    glDrawArrays(GL_TRIANGLES, 0, n_faces*12);
 }
 
 void Mesh::Delete()
@@ -36,10 +44,11 @@ void Mesh::Buffer()
 {
     m_vao.Bind();
     float* vertices = &m_vertices[0];
-    m_vbo.Buffer(vertices, n_faces*6*8*sizeof(float)); 
-    m_vao.LinkAttrib(m_vbo, 0, 3, GL_FLOAT, 8*sizeof(float), (void*)0);
-    m_vao.LinkAttrib(m_vbo, 1, 3, GL_FLOAT, 8*sizeof(float), (void*)(3*sizeof(float)));
-    m_vao.LinkAttrib(m_vbo, 2, 2, GL_FLOAT, 8*sizeof(float), (void*)(6*sizeof(float)));
+    m_vbo.Buffer(vertices, n_faces*6*12*sizeof(float)); 
+    m_vao.LinkAttrib(m_vbo, 0, 3, GL_FLOAT, 12*sizeof(float), (void*)0);
+    m_vao.LinkAttrib(m_vbo, 1, 3, GL_FLOAT, 12*sizeof(float), (void*)(3*sizeof(float)));
+    m_vao.LinkAttrib(m_vbo, 2, 2, GL_FLOAT, 12*sizeof(float), (void*)(6*sizeof(float)));
+    m_vao.LinkAttrib(m_vbo, 3, 4, GL_FLOAT, 12*sizeof(float), (void*)(8*sizeof(float)));
     m_vao.Unbind();
     m_vbo.Unbind();
 }
@@ -173,61 +182,66 @@ void Mesh::AddFace(Block& block, BlockFace face)
     float tex_coord_x = tex_coords.first/32.0f;
     float tex_coord_y = tex_coords.second/32.0f;
 
+    glm::vec2 climate = m_chunk.GetClimate(block.position.x - m_chunk.m_x,
+                                               block.position.z - m_chunk.m_z);
+
+    glm::vec4 recolor = m_texture_manager.RetrieveTextureRecolor(block.block_type, face, climate.x, climate.y);
+
     switch (face)
     {
     case BlockFace::TOP:
         m_vertices.insert(m_vertices.end(), 
-        {-0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-          0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-          0.5f+x,  0.5f+y,  0.5f+z,  0.0f,  1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-          0.5f+x,  0.5f+y,  0.5f+z,  0.0f,  1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-         -0.5f+x,  0.5f+y,  0.5f+z,  0.0f,  1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-         -0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y});
+        {-0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+          0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+          0.5f+x,  0.5f+y,  0.5f+z,  0.0f,  1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+          0.5f+x,  0.5f+y,  0.5f+z,  0.0f,  1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x,  0.5f+y,  0.5f+z,  0.0f,  1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,});
         break;
     case BlockFace::BOTTOM:
         m_vertices.insert(m_vertices.end(), 
-        {-0.5f+x, -0.5f+y, -0.5f+z,  0.0f, -1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-          0.5f+x, -0.5f+y, -0.5f+z,  0.0f, -1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-          0.5f+x, -0.5f+y,  0.5f+z,  0.0f, -1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-          0.5f+x, -0.5f+y,  0.5f+z,  0.0f, -1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-         -0.5f+x, -0.5f+y,  0.5f+z,  0.0f, -1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-         -0.5f+x, -0.5f+y, -0.5f+z,  0.0f, -1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y});
+        {-0.5f+x, -0.5f+y, -0.5f+z,  0.0f, -1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+          0.5f+x, -0.5f+y, -0.5f+z,  0.0f, -1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+          0.5f+x, -0.5f+y,  0.5f+z,  0.0f, -1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+          0.5f+x, -0.5f+y,  0.5f+z,  0.0f, -1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x, -0.5f+y,  0.5f+z,  0.0f, -1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x, -0.5f+y, -0.5f+z,  0.0f, -1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,});
         break;
     case BlockFace::RIGHT:
         m_vertices.insert(m_vertices.end(), 
-        {-0.5f+x, -0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-          0.5f+x, -0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-          0.5f+x,  0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-          0.5f+x,  0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-         -0.5f+x,  0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-         -0.5f+x, -0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y});
+        {-0.5f+x, -0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+          0.5f+x, -0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+          0.5f+x,  0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+          0.5f+x,  0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x,  0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x, -0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,});
         break;
     case BlockFace::LEFT:
         m_vertices.insert(m_vertices.end(), 
-        {-0.5f+x, -0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-          0.5f+x, -0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-          0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-          0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-         -0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-         -0.5f+x, -0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y});
+        {-0.5f+x, -0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+          0.5f+x, -0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+          0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+          0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x, -0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,});
         break;
     case BlockFace::FRONT:
         m_vertices.insert(m_vertices.end(), 
-        {0.5f+x,  0.5f+y,  0.5f+z,  1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-         0.5f+x,  0.5f+y, -0.5f+z,  1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-         0.5f+x, -0.5f+y, -0.5f+z,  1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-         0.5f+x, -0.5f+y, -0.5f+z,  1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-         0.5f+x, -0.5f+y,  0.5f+z,  1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-         0.5f+x,  0.5f+y,  0.5f+z,  1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y});
+        {0.5f+x,  0.5f+y,  0.5f+z,  1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         0.5f+x,  0.5f+y, -0.5f+z,  1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         0.5f+x, -0.5f+y, -0.5f+z,  1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         0.5f+x, -0.5f+y, -0.5f+z,  1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         0.5f+x, -0.5f+y,  0.5f+z,  1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         0.5f+x,  0.5f+y,  0.5f+z,  1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,});
         break;
     case BlockFace::BACK:
         m_vertices.insert(m_vertices.end(), 
-        {-0.5f+x,  0.5f+y,  0.5f+z, -1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-         -0.5f+x,  0.5f+y, -0.5f+z, -1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y,
-         -0.5f+x, -0.5f+y, -0.5f+z, -1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-         -0.5f+x, -0.5f+y, -0.5f+z, -1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-         -0.5f+x, -0.5f+y,  0.5f+z, -1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y,
-         -0.5f+x,  0.5f+y,  0.5f+z, -1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y});
+        {-0.5f+x,  0.5f+y,  0.5f+z, -1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x,  0.5f+y, -0.5f+z, -1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x, -0.5f+y, -0.5f+z, -1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x, -0.5f+y, -0.5f+z, -1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x, -0.5f+y,  0.5f+z, -1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         -0.5f+x,  0.5f+y,  0.5f+z, -1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,});
         break;
     }
 }

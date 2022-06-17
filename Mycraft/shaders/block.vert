@@ -4,11 +4,13 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoord;
+layout (location = 3) in vec4 aRecolor;
 
 out vec3 normal;
 out vec3 fragPos;
 out vec3 lightPos;
 out vec2 texCoord;
+out vec4 recolor;
 
 // Transformation uniforms
 uniform mat4 projection;
@@ -23,4 +25,5 @@ void main()
 	fragPos = vec3(view * vec4(aPos, 1.0));
 	lightPos = vec3(view * vec4(lightPosition, 1.0));
 	texCoord = aTexCoord;
+	recolor = aRecolor;
 }

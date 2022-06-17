@@ -24,10 +24,17 @@ class TextureManager
 public:
     Texture m_texture;
     std::map<std::string, TextureCoords> m_texture_coords; 
+    std::vector<float> texture_recolor_map;
+
     TextureManager();
     ~TextureManager();
-    void LoadTextureOffsets(std::string path);
+
     std::pair<float,float> RetrieveTextureOffsets(BlockType type, BlockFace face);
+    glm::vec4 RetrieveTextureRecolor(BlockType type, BlockFace face, int temperature, int moisture);
+
+private:
+    void LoadTextureRecolorMap(std::string path);
+    void LoadTextureOffsets(std::string path);
     void BindTexture();
 };
 

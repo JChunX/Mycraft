@@ -119,11 +119,16 @@ std::vector<BlockType> BiomeManager::GetBlockLayers(BiomeType type)
 
 void BiomeManager::GenerateBiomes(Chunk& chunk, int ymin, int ymax, std::vector<BlockType>& layers)
 {
+    std::shared_ptr<Terrain> terrain = chunk.m_terrain;
+
     for (int y = ymin; y < ymax; y++) {
         for (int z = 0; z < CHUNK_SIZE; z++) {
             for (int x = 0; x < CHUNK_SIZE; x++) {
-                std::shared_ptr<Terrain> terrain = chunk.m_terrain;
+                
                 float height = terrain->heightmap[terrain->GetIndex(x, z)];
+                float moisture = terrain->moisturemap[terrain->GetIndex(x, z)];
+                float temperature = terrain->temperaturemap[terrain->GetIndex(x, z)];
+                
                 glm::vec3 block_position = glm::vec3(chunk.m_x+x,y,chunk.m_z+z);
                 if (y == 0) 
                 {

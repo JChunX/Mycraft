@@ -15,6 +15,7 @@ Chunk::Chunk()
 {
 
 }
+
 Chunk::~Chunk()
 {
 
@@ -65,4 +66,10 @@ int Chunk::GetIndex(int x, int y, int z)
 bool Chunk::IsInChunk(int x, int y, int z)
 {
     return x >= 0 && x < CHUNK_SIZE && y >= 0 && y < WORLD_HEIGHT && z >= 0 && z < CHUNK_SIZE;
+}
+
+glm::vec2 Chunk::GetClimate(int x, int z)
+{
+    return glm::vec2(m_terrain->temperaturemap[m_terrain->GetIndex(x, z)],
+                     m_terrain->moisturemap[m_terrain->GetIndex(x, z)]);
 }

@@ -30,6 +30,7 @@ public:
     Block* GetBlock(int x, int y, int z);
     BlockType GetBlockType(int x, int y, int z);
     int GetIndex(int x, int y, int z);
+    glm::vec2 GetClimate(int x, int z);
     static bool IsInChunk(int x, int y, int z);
 };
 

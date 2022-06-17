@@ -18,6 +18,7 @@ struct Light {
 in vec3 normal;
 in vec3 fragPos;  
 in vec2 texCoord;
+in vec4 recolor;
 
 out vec4 fragcolor;
 
@@ -28,5 +29,5 @@ uniform sampler2D tex0;
 void main()
 {
 	//fragcolor = vec4(result, 1.0);
-	fragcolor = texture(tex0, texCoord);
+	fragcolor = texture(tex0, texCoord) * recolor;
 }

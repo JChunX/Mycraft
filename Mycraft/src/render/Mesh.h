@@ -21,8 +21,11 @@ public:
     std::vector<float> m_vertices;
     int n_faces;
     bool should_erase;
+    float m_temperature;
+    float m_moisture;
 
     Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& texture_manager);
+    Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& texture_manager, float temperature, float moisture);
 
     ~Mesh();
     void Render();
