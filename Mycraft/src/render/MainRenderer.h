@@ -13,9 +13,9 @@ public:
     Camera& m_camera;
     TextureManager m_texture_manager;
     ChunkRenderer m_chunk_renderer;
+    SkyboxRenderer m_skybox_renderer;
     
     MainRenderer(Camera& camera);
-    ~MainRenderer();
     void Render(Scene& scene);
 };
 

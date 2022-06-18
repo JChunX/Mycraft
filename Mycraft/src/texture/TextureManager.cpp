@@ -4,6 +4,10 @@ TextureManager::TextureManager()
     : m_texture(Texture(GL_TEXTURE_2D, 
                 "resources/default_pack.png", 
                 GL_RGBA, 
+                GL_UNSIGNED_BYTE)),
+      m_skybox(Texture(GL_TEXTURE_CUBE_MAP, 
+                "resources/skybox.png", 
+                GL_RGBA, 
                 GL_UNSIGNED_BYTE))
 {
     LoadTextureOffsets("resources/default_pack_offsets.json");
@@ -103,7 +107,7 @@ glm::vec4 TextureManager::RetrieveTextureRecolor(BlockType type, BlockFace face,
     temperature = std::clamp(temperature, 0, 31);
     moisture = std::clamp(moisture, 0, 31);
 
-    int index = temperature + moisture * 32;
+    int index = (31-temperature) + (31-moisture) * 32;
 
     color *= glm::vec4(texture_recolor_map[index * 4], texture_recolor_map[index * 4 + 1], texture_recolor_map[index * 4 + 2], texture_recolor_map[index * 4 + 3]);
 
@@ -153,7 +157,8 @@ std::pair<float,float> TextureManager::RetrieveTextureOffsets(BlockType type, Bl
     }
 }
 
-void TextureManager::BindTexture()
+void TextureManager::BindTextures()
 {
     m_texture.Bind();
+    m_skybox.Bind();
 }

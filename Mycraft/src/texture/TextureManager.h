@@ -23,6 +23,7 @@ class TextureManager
 {
 public:
     Texture m_texture;
+    Texture m_skybox;
     std::map<std::string, TextureCoords> m_texture_coords; 
     std::vector<float> texture_recolor_map;
 
@@ -35,7 +36,7 @@ public:
 private:
     void LoadTextureRecolorMap(std::string path);
     void LoadTextureOffsets(std::string path);
-    void BindTexture();
+    void BindTextures();
 };
 
 #endif // TEXTUREMANAGER_H

@@ -1,26 +1,18 @@
 #include "Mesh.h"
 #include "Helpers.h"
 
-Mesh::Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& texture_manager, float temperature, float moisture)
+Mesh::Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& texture_manager)
     : m_scene(scene),
-      m_chunk(*(scene.GetChunk(chunk_offset))),
-      m_texture_manager(texture_manager),
       m_vao(VAO()),
       m_vbo(VBO()),
+      m_chunk(*(scene.GetChunk(chunk_offset))),
+      m_texture_manager(texture_manager),
       m_vertices(std::vector<float>()),
       should_erase(false),
-      n_faces(0),
-      m_temperature(temperature),
-      m_moisture(moisture)
+      n_faces(0)
 {
     GenerateMesh();
     Buffer();
-}
-
-Mesh::Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& texture_manager)
-    : Mesh(scene, chunk_offset, texture_manager, 16.0f, 16.0f)
-{
-
 }
 
 Mesh::~Mesh()

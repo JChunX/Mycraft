@@ -32,6 +32,8 @@ public:
 
 	void SetVec3(const char* name, float x, float y, float z);
 
+	void SetVec4(const char* name, float x, float y, float z, float w);
+
 	void SetMat4(const char* name, glm::mat4 value);
 
 	void compileErrors(unsigned int shader, const char* type);

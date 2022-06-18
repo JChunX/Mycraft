@@ -26,7 +26,6 @@ void Scene::Begin(bool* terminate_flag)
 void Scene::Update()
 {
     glm::vec3 position = m_camera.position;
-
     LoadChunks(position.x, position.z);
 
     glm::vec3 heading = m_camera.GetHeadingVector();
@@ -50,61 +49,82 @@ void Scene::LoadChunks(int x, int z)
     int max_xc = xc0 + (CHUNK_LOAD_DISTANCE-1) * CHUNK_SIZE;
     int max_zc = zc0 + (CHUNK_LOAD_DISTANCE-1) * CHUNK_SIZE;
     
+    std::unique_lock<std::mutex> chunk_lock(m_chunks_mutex);
+    std::unique_lock<std::mutex> mesh_lock(m_meshes_mutex);
     // remove far chunks
     for (auto it = m_current_chunks.begin(), next_it = it; it != m_current_chunks.end(); it = next_it)
     {
         ++next_it;
         if (!ShouldRender(min_xc, min_zc, max_xc, max_zc, it->second))
         {
-            std::unique_lock<std::mutex> chunk_lock(m_chunks_mutex);
-            std::unique_lock<std::mutex> mesh_lock(m_meshes_mutex);
+
             m_meshes.find(it->first)->second.should_erase = true;
             m_current_chunks.erase(it);
         }
     }
+    chunk_lock.unlock();
+    mesh_lock.unlock();
 
-    // load chunks
+    std::vector<std::pair<int,int>> chunk_coords_list;
     for (int chunk_idx_x=-CHUNK_LOAD_DISTANCE; chunk_idx_x<CHUNK_LOAD_DISTANCE; chunk_idx_x++)
     {
         for (int chunk_idx_z=-CHUNK_LOAD_DISTANCE; chunk_idx_z<CHUNK_LOAD_DISTANCE; chunk_idx_z++)
         {
+
+            // only process if xc, zc within chunk load distance radius
+
             int xc = xc0 + chunk_idx_x * CHUNK_SIZE;
             int zc = zc0 + chunk_idx_z * CHUNK_SIZE;
-            std::pair<int,int> key = std::pair<int, int>(xc, zc);
-            // if not in occupancy, load chunk
-            if (m_current_chunks.find(key) == m_current_chunks.end())
+
+            if (m_current_chunks.find(std::pair<int,int>(xc,zc)) == m_current_chunks.end())
             {
-                auto res = std::async(&Scene::LoadChunkAux, this, key);
+                chunk_coords_list.push_back(std::make_pair(xc, zc));
             }
         }
     }
+
+    SortChunksByDistance(chunk_coords_list, m_camera.position.x, m_camera.position.z);
+
+    LoadChunkAux(chunk_coords_list);
 }
 
-void Scene::LoadChunkAux(std::pair<int,int> chunk_coords)
+void Scene::SortChunksByDistance(std::vector<std::pair<int, int>>& chunk_coords_list, int x, int z)
 {
-    int xc = chunk_coords.first;
-    int zc = chunk_coords.second;
-
-    m_current_chunks.try_emplace(chunk_coords, xc, zc);
-
-    // neighbor chunks now need update
-    for (int neighbor_idx_x=-1; neighbor_idx_x<=1; neighbor_idx_x++)
+    std::sort(chunk_coords_list.begin(), chunk_coords_list.end(), [x, z](std::pair<int, int> a, std::pair<int, int> b)
     {
-        for (int neighbor_idx_z=-1; neighbor_idx_z<=1; neighbor_idx_z++)
+        return glm::distance(glm::vec2(a.first, a.second), glm::vec2(x, z)) < glm::distance(glm::vec2(b.first, b.second), glm::vec2(x, z));
+    });
+}
+
+void Scene::LoadChunkAux(std::vector<std::pair<int,int>>& chunk_coords_list)
+{
+
+    for (auto it = chunk_coords_list.begin(); it != chunk_coords_list.end(); it++)
+    {
+        std::pair<int,int> chunk_coords = *it;
+        int xc = chunk_coords.first;
+        int zc = chunk_coords.second;
+
+        m_current_chunks.try_emplace(chunk_coords, xc, zc);
+
+        // neighbor chunks now need update
+        for (int neighbor_idx_x=-1; neighbor_idx_x<=1; neighbor_idx_x++)
         {
-            if ((neighbor_idx_x == 0 && neighbor_idx_z == 0) || (neighbor_idx_x != 0 && neighbor_idx_z != 0))
+            for (int neighbor_idx_z=-1; neighbor_idx_z<=1; neighbor_idx_z++)
             {
-                continue;
+                if ((neighbor_idx_x == 0 && neighbor_idx_z == 0) || (neighbor_idx_x != 0 && neighbor_idx_z != 0))
+                {
+                    continue;
+                }
+                int neighbor_xc = xc + neighbor_idx_x * CHUNK_SIZE;
+                int neighbor_zc = zc + neighbor_idx_z * CHUNK_SIZE;
+                std::pair<int,int> neighbor_key = std::pair<int, int>(neighbor_xc, neighbor_zc);
+                
+                if (m_current_chunks.find(neighbor_key) != m_current_chunks.end())
+                {
+                    m_current_chunks[neighbor_key].need_mesh_update = true;
+                }
             }
-            int neighbor_xc = xc + neighbor_idx_x * CHUNK_SIZE;
-            int neighbor_zc = zc + neighbor_idx_z * CHUNK_SIZE;
-            std::pair<int,int> neighbor_key = std::pair<int, int>(neighbor_xc, neighbor_zc);
-            
-            if (m_current_chunks.find(neighbor_key) != m_current_chunks.end())
-            {
-                m_current_chunks[neighbor_key].need_mesh_update = true;
-            }
-            //lock.unlock();
         }
     }
 }

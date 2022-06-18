@@ -1,21 +1,13 @@
 #ifndef CHUNKRENDERER_H
 #define CHUNKRENDERER_H
 
-#include "Shader.h"
+#include "Renderer.h"
 #include "Chunk.h"
 #include "Mesh.h"
-#include "Camera.h"
-#include "TextureManager.h"
 
-class ChunkRenderer
+class ChunkRenderer : public Renderer
 {
-public:
-    Shader m_shader;
-    Camera& m_camera;
     
-    ChunkRenderer(Camera& camera);
-    ~ChunkRenderer();
-    void Render(Scene& scene, TextureManager& texture_manager);
 };
 
 #endif // CHUNKRENDERER_H

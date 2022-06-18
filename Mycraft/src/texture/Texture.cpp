@@ -1,68 +1,69 @@
 #include "Texture.h"
 #include<iostream>
 
-Texture::Texture(GLenum texType, const char* path, GLenum format, GLenum pixelType)
+Texture::Texture(GLenum textype, const char* path, GLenum format, GLenum pixelType)
+	: m_textype(m_textype)
 {
-	this->texType = texType;
     glGenTextures(1, &ID);
     Bind();
 
-    // Set the texture wrapping/filtering options (on the currently bound texture object)
-	glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-	glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// https://gamedev.stackexchange.com/questions/174205/removing-texture-wrapping-artifacts-in-opengles
-	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-	glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(texType, GL_TEXTURE_MAX_LEVEL, 4);
-
-    // Load image
 	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);  
 	unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0); 
 
-	// Error check if the image fails to load
 	if (!data)
 	{
 		std::cout << "Failed to load texture" << std::endl;
 	}
-	// Generate the texture
-	// 1. texture target
-	// 2. mipmap level
-	// 3. texture format
-	// 4. width
-	// 5. height
-	// 6. legacy
-	// 7-8. data type
-	// 9. the data
-	// our texture source png is RGBA!
-	glTexImage2D(texType, 0, GL_RGBA, width, height, 0, format, pixelType, data);
-	// Generates MipMaps
-	glGenerateMipmap(texType);
+
+	glTexImage2D(m_textype, 0, GL_RGBA, width, height, 0, format, pixelType, data);
 	stbi_image_free(data);
+
+	ConfigureTexParameters();
+
     Unbind();
 }
 
 void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit) 
 {
-    // Gets ID of uniform called "texture"
 	GLuint texUni = glGetUniformLocation(shader.ID, uniform);
-	// Shader needs to be activated before changing the value of a uniform
 	shader.Activate();
-	// Sets the value of the uniform
 	glUniform1i(texUni, unit);
 }
 
 void Texture::Bind()
 {
-    glBindTexture(texType, ID);
+    glBindTexture(m_textype, ID);
 }
 
 void Texture::Unbind()
 {
-    glBindTexture(texType, 0);
+    glBindTexture(m_textype, 0);
 }
 
 void Texture::Delete()
 {
     glDeleteTextures(1, &ID);
+}
+
+void Texture::ConfigureTexParameters()
+{
+	switch (m_textype)
+	{
+	case GL_TEXTURE_2D:
+		glGenerateMipmap(m_textype);
+		glTexParameteri(m_textype, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+		glTexParameteri(m_textype, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		// https://gamedev.stackexchange.com/questions/174205/removing-texture-wrapping-artifacts-in-opengles
+		glTexParameteri(m_textype, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+		glTexParameteri(m_textype, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(m_textype, GL_TEXTURE_MAX_LEVEL, 4);
+		break;
+	case GL_TEXTURE_CUBE_MAP:
+		glTexParameteri(m_textype, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(m_textype, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(m_textype, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_textype, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(m_textype, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	}
 }

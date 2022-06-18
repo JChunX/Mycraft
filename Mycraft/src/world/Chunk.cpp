@@ -23,13 +23,7 @@ Chunk::~Chunk()
 
 void Chunk::Generate()
 {
-    std::vector<BlockType> layers = BiomeManager::GetBlockLayers(m_terrain->biome_type);
-
-    //auto res1 = std::async(&BiomeManager::GenerateBiomes, *this, 0, WORLD_HEIGHT, layers);
-    //auto res2 = std::async(&BiomeManager::GenerateBiomes, *this, WORLD_HEIGHT/4, WORLD_HEIGHT/2, layers);
-    //auto res3 = std::async(&BiomeManager::GenerateBiomes, *this, WORLD_HEIGHT/2, WORLD_HEIGHT*3/4, layers);
-    //auto res4 = std::async(&BiomeManager::GenerateBiomes, *this, WORLD_HEIGHT*3/4, WORLD_HEIGHT, layers);
-    BiomeManager::GenerateBiomes(*this, 0, WORLD_HEIGHT, layers);
+    BiomeManager::GenerateBiomes(*this, 0, WORLD_HEIGHT);
 }
 
 void Chunk::Update()
@@ -60,7 +54,7 @@ BlockType Chunk::GetBlockType(int x, int y, int z)
 
 int Chunk::GetIndex(int x, int y, int z)
 {
-    return x + y * CHUNK_SIZE * CHUNK_SIZE + z * CHUNK_SIZE;
+    return y + x * WORLD_HEIGHT + z * WORLD_HEIGHT * CHUNK_SIZE;
 }
 
 bool Chunk::IsInChunk(int x, int y, int z)

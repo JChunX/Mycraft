@@ -45,90 +45,47 @@ std::vector<BlockType> BiomeManager::GetBlockLayers(BiomeType type)
     switch (type)
     {
     case BiomeType::MOUNTAIN:
-        return {
-            BlockType::STONE, 
-            BlockType::STONE, 
-            BlockType::GRAVEL, 
-            BlockType::STONE, 
-            BlockType::WATER
-        };
+        return mountain_layers;
     case BiomeType::PLAINS:
-        return {
-            BlockType::STONE, 
-            BlockType::DIRT, 
-            BlockType::SAND, 
-            BlockType::GRASS, 
-            BlockType::WATER
-        };
+        return plains_layers;
 
     case BiomeType::DESERT:
-        return {
-            BlockType::STONE, 
-            BlockType::SAND, 
-            BlockType::SAND, 
-            BlockType::SAND, 
-            BlockType::WATER
-        };
+        return desert_layers;
     
     case BiomeType::OCEAN:
-        return {
-            BlockType::STONE, 
-            BlockType::GRAVEL, 
-            BlockType::SAND, 
-            BlockType::GRASS, 
-            BlockType::WATER
-        };
+        return ocean_layers;
 
     case BiomeType::FOREST:
-        return {
-            BlockType::STONE, 
-            BlockType::DIRT, 
-            BlockType::SAND, 
-            BlockType::GRASS, 
-            BlockType::WATER
-        };
+        return forest_layers;
 
     case BiomeType::TUNDRA:
-        return {
-            BlockType::STONE, 
-            BlockType::DIRT, 
-            BlockType::GRAVEL, 
-            BlockType::GRASS, 
-            BlockType::WATER
-        };
+        return tundra_layers;
 
     case BiomeType::TAIGA:
-        return {
-            BlockType::STONE, 
-            BlockType::DIRT, 
-            BlockType::GRAVEL, 
-            BlockType::GRASS, 
-            BlockType::WATER
-        };
+        return taiga_layers;
     
     default:
-        return {
-            BlockType::STONE, 
-            BlockType::DIRT, 
-            BlockType::SAND, 
-            BlockType::GRASS, 
-            BlockType::WATER
-        };
+        return plains_layers;
     }
 }
 
-void BiomeManager::GenerateBiomes(Chunk& chunk, int ymin, int ymax, std::vector<BlockType>& layers)
+void BiomeManager::GenerateBiomes(Chunk& chunk, int ymin, int ymax)
 {
+    std::cout << "Generating biome..." << chunk.m_x << " " << chunk.m_z << std::endl;
     std::shared_ptr<Terrain> terrain = chunk.m_terrain;
 
-    for (int y = ymin; y < ymax; y++) {
-        for (int z = 0; z < CHUNK_SIZE; z++) {
-            for (int x = 0; x < CHUNK_SIZE; x++) {
-                
-                float height = terrain->heightmap[terrain->GetIndex(x, z)];
-                float moisture = terrain->moisturemap[terrain->GetIndex(x, z)];
-                float temperature = terrain->temperaturemap[terrain->GetIndex(x, z)];
-                
+    for (int z = 0; z < CHUNK_SIZE; z++) 
+    {
+        for (int x = 0; x < CHUNK_SIZE; x++) 
+        {
+            float height = terrain->heightmap[terrain->GetIndex(x, z)];
+            float moisture = terrain->moisturemap[terrain->GetIndex(x, z)];
+            float temperature = terrain->temperaturemap[terrain->GetIndex(x, z)];
+            
+            std::vector<BlockType> layers = GetBlockLayers(GetBiomeTypeFromParams(height, moisture, temperature));
+
+            for (int y = ymin; y < ymax; y++) 
+            {
                 glm::vec3 block_position = glm::vec3(chunk.m_x+x,y,chunk.m_z+z);
                 if (y == 0) 
                 {

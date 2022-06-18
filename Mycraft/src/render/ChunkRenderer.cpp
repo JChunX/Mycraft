@@ -2,22 +2,16 @@
 #include"Helpers.h"
 
 ChunkRenderer::ChunkRenderer(Camera& camera)
-    : m_camera(camera),
-      m_shader("shaders/block.vert", "shaders/block.frag")
+    : Renderer(camera, "shaders/block.vert", "shaders/block.frag")
 {
-
-}
-
-ChunkRenderer::~ChunkRenderer()
-{
-
+    m_shader.SetFloat("fog_maxdist", CHUNK_LOAD_DISTANCE * CHUNK_SIZE);
+    m_shader.SetFloat("fog_mindist", CHUNK_LOAD_DISTANCE * CHUNK_SIZE - 50.0f);
+    m_shader.SetVec4("fog_color", 0.8f, 0.8f, 0.8f, 0.7f);
 }
 
 void ChunkRenderer::Render(Scene& scene, TextureManager& texture_manager)
 {
-    m_shader.Activate();
-    m_camera.SetProjectionViewUniforms(m_shader);
-
+    Render::Render(scene, texture_manager);
     std::unique_lock<std::mutex> chunk_lock(scene.m_chunks_mutex);
     std::unique_lock<std::mutex> mesh_lock(scene.m_meshes_mutex);
     for (auto& kv : scene.m_current_chunks)

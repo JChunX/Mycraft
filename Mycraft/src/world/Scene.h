@@ -43,7 +43,8 @@ public:
     Block* GetBlock(int x, int y, int z);
     Block* GetRaycastTarget(glm::vec3 position, glm::vec3 heading);
 private:
-    void LoadChunkAux(std::pair<int,int> chunk_coords);
+    void LoadChunkAux(std::vector<std::pair<int,int>>& chunk_coords_list);
+    void SortChunksByDistance(std::vector<std::pair<int,int>>& chunk_coords_list, int x, int z);
 
 };
 
