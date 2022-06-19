@@ -7,25 +7,26 @@ Camera::Camera(int width, int height,
                float far_plane,
                glm::vec3 camera_position,
                glm::vec3 camera_orientation)
-			    : WorldObject(camera_position, camera_orientation), 
-				  InputListener()
+			    : 
+				width(width),
+				height(height),
+				FOVdeg(FOVdeg),
+				near_plane(near_plane),
+				far_plane(far_plane),
+				WorldObject(camera_position, camera_orientation), 
+				InputListener()
 {
-    this->width = width;
-    this->height = height;
-    this->FOVdeg = FOVdeg;
-    this->near_plane = near_plane;
-    this->far_plane = far_plane;
+
 }
 
-void Camera::SetProjectionUniform(Shader& shader, const char* uniform)
+glm::mat4 Camera::GetProjectionMatrix()
 {
-    glm::mat4 projection = glm::perspective(glm::radians(FOVdeg), (float) width / (float) height, near_plane, far_plane);
-	shader.SetMat4(uniform, projection);
+	return glm::perspective(glm::radians(FOVdeg), (float) width / (float) height, near_plane, far_plane);
 }
 
-void Camera::SetViewUniform(Shader& shader, const char* uniform)
+glm::mat4 Camera::GetViewMatrix()
 {
-    // calculate camera direction vector
+	// calculate camera direction vector
     glm::vec3 direction = glm::normalize(glm::inverse(orientation) * glm::vec3(0.0f, 0.0f, -1.0f));
     // calculate camera target
     glm::vec3 target = position + direction;
@@ -35,8 +36,18 @@ void Camera::SetViewUniform(Shader& shader, const char* uniform)
     // generate orthonormal basis
     glm::vec3 camera_right = glm::normalize(glm::cross(direction, up));
     glm::vec3 camera_up = glm::normalize(glm::cross(camera_right, direction));
+	return glm::lookAt(position, target, camera_up);
+}
 
-    glm::mat4 view = glm::lookAt(position, target, camera_up);
+void Camera::SetProjectionUniform(Shader& shader, const char* uniform)
+{
+    glm::mat4 projection = GetProjectionMatrix();
+	shader.SetMat4(uniform, projection);
+}
+
+void Camera::SetViewUniform(Shader& shader, const char* uniform)
+{
+    glm::mat4 view = GetViewMatrix();
 	shader.SetMat4(uniform, view);
 }
 

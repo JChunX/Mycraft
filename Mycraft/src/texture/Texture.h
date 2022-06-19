@@ -7,22 +7,35 @@
 
 class Texture
 {
-public:
-    // Reference ID of the Texture
+protected:
     GLuint ID;
-    // Texture type
     GLenum m_textype;
-    // Constructor
-    Texture(GLenum textype, const char* path, GLenum format, GLenum pixelType);
-    void texUnit(Shader& shader, const char* uniform, GLuint unit);
-    // Bind and unbinding
-    void Bind();
-    void Unbind();
-    // Deletes the Texture
-    void Delete();
 
-private:
-    void ConfigureTexParameters();
+    Texture(GLenum textype): m_textype(textype)
+    {
+        glGenTextures(1, &ID);
+        Bind();
+    }
+    virtual ~Texture() = default;
+
+    virtual void ConfigureTexParameters() = 0;
+
+public:
+    void texUnit(Shader& shader, const char* uniform, GLuint unit);
+
+    void Bind() { 
+        glBindTexture(m_textype, ID);
+    }
+
+    void Unbind() {
+        glBindTexture(m_textype, 0);
+    }
+
+    void Delete() {
+        glDeleteTextures(1, &ID);
+    }
+
+
 };
 
 #endif

@@ -44,6 +44,8 @@ public:
             glm::vec3 camera_position=glm::vec3(0.0f, 0.0f, 0.0f), 
             glm::vec3 camera_orientation=glm::vec3(0.0f, 0.0f, -1.0f));
 
+    glm::mat4 GetViewMatrix();
+    glm::mat4 GetProjectionMatrix();
     void SetProjectionUniform(Shader& shader, const char* uniform);
     void SetViewUniform(Shader& shader, const char* uniform);
     void SetProjectionViewUniforms(Shader& shader);

@@ -1,18 +1,11 @@
 #include"TextureManager.h"
 
 TextureManager::TextureManager() 
-    : m_texture(Texture(GL_TEXTURE_2D, 
-                "resources/default_pack.png", 
-                GL_RGBA, 
-                GL_UNSIGNED_BYTE)),
-      m_skybox(Texture(GL_TEXTURE_CUBE_MAP, 
-                "resources/skybox.png", 
-                GL_RGBA, 
-                GL_UNSIGNED_BYTE))
 {
-    LoadTextureOffsets("resources/default_pack_offsets.json");
-    LoadTextureRecolorMap("resources/biome_colormap.png");
-    BindTexture();
+    LoadBlockTextureOffsets("resources/default_pack_offsets.json");
+    LoadBlockTextureRecolorMap("resources/biome_colormap.png");
+    m_block_texture = std::make_unique<BlockTexture>("resources/default_pack.png");
+    m_skybox_texture = std::make_unique<SkyboxTexture>();
 }
 
 TextureManager::~TextureManager()
@@ -20,7 +13,7 @@ TextureManager::~TextureManager()
 
 }
 
-void TextureManager::LoadTextureRecolorMap(std::string path)
+void TextureManager::LoadBlockTextureRecolorMap(std::string path)
 {
     int width, height, nrChannels;
     unsigned char *data = stbi_load(path.data(), &width, &height, &nrChannels, 4); 
@@ -32,10 +25,10 @@ void TextureManager::LoadTextureRecolorMap(std::string path)
             unsigned char g = data[i + 1];
             unsigned char b = data[i + 2];
             unsigned char a = data[i + 3];
-            texture_recolor_map.push_back(r / 255.0f);
-            texture_recolor_map.push_back(g / 255.0f);
-            texture_recolor_map.push_back(b / 255.0f);
-            texture_recolor_map.push_back(a / 255.0f);
+            m_block_texture_recolor_map.push_back(r / 255.0f);
+            m_block_texture_recolor_map.push_back(g / 255.0f);
+            m_block_texture_recolor_map.push_back(b / 255.0f);
+            m_block_texture_recolor_map.push_back(a / 255.0f);
         }
     }
     else
@@ -44,7 +37,7 @@ void TextureManager::LoadTextureRecolorMap(std::string path)
     }
 }
 
-void TextureManager::LoadTextureOffsets(std::string path)
+void TextureManager::LoadBlockTextureOffsets(std::string path)
 {
     std::ifstream file(path);
     //std::cout << file.rdbuf();
@@ -54,7 +47,7 @@ void TextureManager::LoadTextureOffsets(std::string path)
 
     for (auto& [key, value] : j.items())
     {
-        m_texture_coords[key] = {
+        m_block_texture_coords[key] = {
             {value["side"][0], value["side"][1]},
             {value["top"][0], value["top"][1]},
             {value["bottom"][0], value["bottom"][1]}
@@ -64,7 +57,7 @@ void TextureManager::LoadTextureOffsets(std::string path)
     file.close();
 
     //print texture coords
-    for (auto& [key, value] : m_texture_coords)
+    for (auto& [key, value] : m_block_texture_coords)
     {
         std::cout << "BlockType: " << key << std::endl;
         std::cout << "Side: " << value.offsets_side.first << ", " << value.offsets_side.second << std::endl;
@@ -73,7 +66,7 @@ void TextureManager::LoadTextureOffsets(std::string path)
     }
 }
 
-glm::vec4 TextureManager::RetrieveTextureRecolor(BlockType type, BlockFace face, int temperature, int moisture)
+glm::vec4 TextureManager::RetrieveBlockTextureRecolor(BlockType type, BlockFace face, int temperature, int moisture)
 {
     glm::vec4 color;
 
@@ -109,36 +102,36 @@ glm::vec4 TextureManager::RetrieveTextureRecolor(BlockType type, BlockFace face,
 
     int index = (31-temperature) + (31-moisture) * 32;
 
-    color *= glm::vec4(texture_recolor_map[index * 4], texture_recolor_map[index * 4 + 1], texture_recolor_map[index * 4 + 2], texture_recolor_map[index * 4 + 3]);
+    color *= glm::vec4(m_block_texture_recolor_map[index * 4], m_block_texture_recolor_map[index * 4 + 1], m_block_texture_recolor_map[index * 4 + 2], m_block_texture_recolor_map[index * 4 + 3]);
 
     return color;
 }
 
-std::pair<float,float> TextureManager::RetrieveTextureOffsets(BlockType type, BlockFace face)
+std::pair<float,float> TextureManager::RetrieveBlockTextureOffsets(BlockType type, BlockFace face)
 {
     TextureCoords texture_coords;
     switch (type)
     {
     case BlockType::GRASS:
-        texture_coords = m_texture_coords["grass"];
+        texture_coords = m_block_texture_coords["grass"];
         break;
     case BlockType::DIRT:
-        texture_coords = m_texture_coords["dirt"];
+        texture_coords = m_block_texture_coords["dirt"];
         break;
     case BlockType::STONE:
-        texture_coords = m_texture_coords["stone"];
+        texture_coords = m_block_texture_coords["stone"];
         break;
     case BlockType::SAND:   
-        texture_coords = m_texture_coords["sand"];
+        texture_coords = m_block_texture_coords["sand"];
         break;
     case BlockType::WATER:
-        texture_coords = m_texture_coords["water"];
+        texture_coords = m_block_texture_coords["water"];
         break;
     case BlockType::GRAVEL:
-        texture_coords = m_texture_coords["gravel"];
+        texture_coords = m_block_texture_coords["gravel"];
         break;
     default:
-        texture_coords = m_texture_coords["grass"];
+        texture_coords = m_block_texture_coords["grass"];
         break;
     }
     switch (face)
@@ -157,8 +150,7 @@ std::pair<float,float> TextureManager::RetrieveTextureOffsets(BlockType type, Bl
     }
 }
 
-void TextureManager::BindTextures()
+void TextureManager::BindTexture(Texture& texture)
 {
-    m_texture.Bind();
-    m_skybox.Bind();
+    texture.Bind();
 }

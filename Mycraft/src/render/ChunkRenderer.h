@@ -7,7 +7,9 @@
 
 class ChunkRenderer : public Renderer
 {
-    
+public:
+    ChunkRenderer(Camera& camera);
+    void Render(Scene& scene, TextureManager& texture_manager);
 };
 
 #endif // CHUNKRENDERER_H

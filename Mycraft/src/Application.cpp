@@ -36,12 +36,7 @@ void Application::Run()
     }
     terminate_flag = true;
     scene_thread.join();
-
-    m_renderer.m_texture_manager.m_texture.Delete();
-    m_scene.m_current_chunks.clear();
-    m_scene.m_meshes.clear();
     glfwTerminate();
-
 }
 
 float Application::Time()

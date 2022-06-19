@@ -6,6 +6,7 @@
 #include"Camera.h"
 #include"Scene.h"
 #include"ChunkRenderer.h"
+#include"SkyboxRenderer.h"
 
 class MainRenderer
 {
@@ -19,4 +20,4 @@ public:
     void Render(Scene& scene);
 };
 
-#endif
+#endif // MAINRENDERER_H

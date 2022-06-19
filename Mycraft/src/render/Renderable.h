@@ -11,7 +11,11 @@ public:
     virtual void Render() = 0;
     virtual void Buffer() = 0;
     virtual ~Renderable() = default;
-    virtual void Delete();
+    void Delete() {
+        m_vao.Delete();
+        m_vbo.Delete();
+    }
+    bool should_erase;
 
 protected:
     Renderable(TextureManager& texture_manager)
@@ -27,13 +31,6 @@ protected:
     VBO m_vbo;
     TextureManager& m_texture_manager;
     std::vector<float> m_vertices;
-    bool should_erase;
 };
-
-void Renderable::Delete()
-{
-    m_vao.Delete();
-    m_vbo.Delete();
-}
 
 #endif // RENDERABLE_H

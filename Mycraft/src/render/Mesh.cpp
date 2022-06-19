@@ -3,13 +3,8 @@
 
 Mesh::Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& texture_manager)
     : m_scene(scene),
-      m_vao(VAO()),
-      m_vbo(VBO()),
       m_chunk(*(scene.GetChunk(chunk_offset))),
-      m_texture_manager(texture_manager),
-      m_vertices(std::vector<float>()),
-      should_erase(false),
-      n_faces(0)
+      Renderable(texture_manager)
 {
     GenerateMesh();
     Buffer();
@@ -23,13 +18,9 @@ Mesh::~Mesh()
 void Mesh::Render()
 {
     m_vao.Bind();
+    m_texture_manager.BindTexture(*(m_texture_manager.m_block_texture));
     glDrawArrays(GL_TRIANGLES, 0, n_faces*12);
-}
-
-void Mesh::Delete()
-{
-    m_vbo.Delete();
-    m_vao.Delete();
+    m_vao.Unbind();
 }
 
 void Mesh::Buffer()
@@ -59,7 +50,6 @@ void Mesh::GenerateMesh()
         int chunk_x = block.position.x - m_chunk.m_x;
         int chunk_y = block.position.y;
         int chunk_z = block.position.z - m_chunk.m_z;
-
 
         std::pair<int, int> neighbour_chunk_offset;
         if (chunk_x == 0) 
@@ -164,12 +154,11 @@ void Mesh::GenerateMesh()
 void Mesh::AddFace(Block& block, BlockFace face)
 {
     n_faces++;
-
     float x = block.position.x;
     float y = block.position.y;
     float z = block.position.z;
 
-    std::pair<float,float> tex_coords = m_texture_manager.RetrieveTextureOffsets(block.block_type, face);
+    std::pair<float,float> tex_coords = m_texture_manager.RetrieveBlockTextureOffsets(block.block_type, face);
 
     float tex_coord_x = tex_coords.first/32.0f;
     float tex_coord_y = tex_coords.second/32.0f;
@@ -177,7 +166,7 @@ void Mesh::AddFace(Block& block, BlockFace face)
     glm::vec2 climate = m_chunk.GetClimate(block.position.x - m_chunk.m_x,
                                                block.position.z - m_chunk.m_z);
 
-    glm::vec4 recolor = m_texture_manager.RetrieveTextureRecolor(block.block_type, face, climate.x, climate.y);
+    glm::vec4 recolor = m_texture_manager.RetrieveBlockTextureRecolor(block.block_type, face, climate.x, climate.y);
 
     switch (face)
     {

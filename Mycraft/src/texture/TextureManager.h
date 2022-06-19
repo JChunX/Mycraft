@@ -1,7 +1,8 @@
 #ifndef TEXTUREMANAGER_H
 #define TEXTUREMANAGER_H
 
-#include"Texture.h"
+#include"BlockTexture.h"
+#include"SkyboxTexture.h"
 #include"Block.h"
 #include"nlohmann/json.hpp"
 #include<utility>
@@ -22,21 +23,23 @@ struct TextureCoords
 class TextureManager
 {
 public:
-    Texture m_texture;
-    Texture m_skybox;
-    std::map<std::string, TextureCoords> m_texture_coords; 
-    std::vector<float> texture_recolor_map;
+    std::unique_ptr<BlockTexture> m_block_texture;
+    std::unique_ptr<SkyboxTexture> m_skybox_texture;
+    std::map<std::string, TextureCoords> m_block_texture_coords; 
+    std::vector<float> m_block_texture_recolor_map;
 
     TextureManager();
     ~TextureManager();
 
-    std::pair<float,float> RetrieveTextureOffsets(BlockType type, BlockFace face);
-    glm::vec4 RetrieveTextureRecolor(BlockType type, BlockFace face, int temperature, int moisture);
+    std::pair<float,float> RetrieveBlockTextureOffsets(BlockType type, BlockFace face);
+    glm::vec4 RetrieveBlockTextureRecolor(BlockType type, BlockFace face, int temperature, int moisture);
+    int RetrieveCubeMapTextureOffsets(BlockFace face);
+
+    void BindTexture(Texture& texture);
 
 private:
-    void LoadTextureRecolorMap(std::string path);
-    void LoadTextureOffsets(std::string path);
-    void BindTextures();
+    void LoadBlockTextureRecolorMap(std::string path);
+    void LoadBlockTextureOffsets(std::string path);
 };
 
 #endif // TEXTUREMANAGER_H
