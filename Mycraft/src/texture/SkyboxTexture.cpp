@@ -4,20 +4,20 @@
 SkyboxTexture::SkyboxTexture()
     : Texture(GL_TEXTURE_CUBE_MAP)
 {
-    std::vector<std::string> faces = {"resources/skybox_right.jpg", 
-                                    "resources/skybox_left.jpg", 
-                                    "resources/skybox_top.jpg", 
-                                    "resources/skybox_bottom.jpg", 
-                                    "resources/skybox_front.jpg", 
-                                    "resources/skybox_back.jpg"};
+    std::vector<std::string> faces = {"resources/skybox_Xp.png", 
+                                    "resources/skybox_Xn.png", 
+                                    "resources/skybox_Yp.png", 
+                                    "resources/skybox_Yn.png", 
+                                    "resources/skybox_Zp.png", 
+                                    "resources/skybox_Zn.png"};
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++)
     {
         stbi_set_flip_vertically_on_load(false);
-        unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 4);
         if (data)
         {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
         }
         else

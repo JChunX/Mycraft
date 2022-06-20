@@ -4,7 +4,6 @@
 Context::Context()
 {
     glfwInit();
-
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -24,7 +23,8 @@ Context::Context()
 	gladLoadGL();
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 	glEnable(GL_DEPTH_TEST);  
-
+	glEnable(GL_BLEND);  
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 }
 
 void Context::Destroy()

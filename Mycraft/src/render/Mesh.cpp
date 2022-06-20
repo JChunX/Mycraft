@@ -6,8 +6,7 @@ Mesh::Mesh(Scene& scene, std::pair<int, int> chunk_offset, TextureManager& textu
       m_chunk(*(scene.GetChunk(chunk_offset))),
       Renderable(texture_manager)
 {
-    GenerateMesh();
-    Buffer();
+
 }
 
 Mesh::~Mesh()
@@ -40,115 +39,129 @@ void Mesh::GenerateMesh()
 {
 
     for (auto block : m_chunk.m_chunkdata)
-    {
-        if (block.block_type == BlockType::AIR 
-         || block.block_type == BlockType::BEDROCK)
+    {    
+        if (block.block_type == BlockType::AIR
+            || block.block_type == BlockType::BEDROCK
+            || block.block_type == BlockType::WATER)
             continue;
 
-        BlockType neighbour_type;
-
-        int chunk_x = block.position.x - m_chunk.m_x;
-        int chunk_y = block.position.y;
-        int chunk_z = block.position.z - m_chunk.m_z;
-
-        std::pair<int, int> neighbour_chunk_offset;
-        if (chunk_x == 0) 
+        std::vector<BlockFace> faces = DetermineVisibleFaces(block);
+        for (auto face : faces)
         {
-            neighbour_chunk_offset = std::pair<int,int>(m_chunk.m_x-CHUNK_SIZE, m_chunk.m_z);
-            Chunk* chunk =  m_scene.GetChunk(neighbour_chunk_offset);
-            if (chunk)
-            {
-                neighbour_type = chunk->GetBlockType(CHUNK_SIZE-1, chunk_y, chunk_z);
-                if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::NONE)
-                {
-                    AddFace(block, BlockFace::BACK);
-                }
-            }
-        }
-        else 
-        {
-            neighbour_type = m_chunk.GetBlockType(chunk_x - 1, chunk_y, chunk_z);
-            if (neighbour_type == BlockType::AIR)
-            {
-                AddFace(block, BlockFace::BACK);
-            }
-        }
-        if (chunk_x == CHUNK_SIZE - 1)
-        {
-            neighbour_chunk_offset = std::pair<int,int>(m_chunk.m_x+CHUNK_SIZE, m_chunk.m_z);
-            Chunk* chunk =  m_scene.GetChunk(neighbour_chunk_offset);
-            if (chunk)
-            {
-                neighbour_type = chunk->GetBlockType(0, chunk_y, chunk_z);
-                if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::NONE)
-                {
-                    AddFace(block, BlockFace::FRONT);
-                }
-            }
-        }
-        else
-        {
-            neighbour_type = m_chunk.GetBlockType(chunk_x + 1, chunk_y, chunk_z);
-            if (neighbour_type == BlockType::AIR)
-            {
-                AddFace(block, BlockFace::FRONT);
-            }
-        }
-        if (chunk_z == 0)
-        {
-            neighbour_chunk_offset = std::pair<int,int>(m_chunk.m_x, m_chunk.m_z-CHUNK_SIZE);
-            Chunk* chunk =  m_scene.GetChunk(neighbour_chunk_offset);
-            if (chunk)
-            {
-                neighbour_type = chunk->GetBlockType(chunk_x, chunk_y, CHUNK_SIZE-1);
-                if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::NONE)
-                {
-                    AddFace(block, BlockFace::LEFT);
-                }
-            }
-        }
-        else
-        {
-            neighbour_type = m_chunk.GetBlockType(chunk_x, chunk_y, chunk_z - 1);
-            if (neighbour_type == BlockType::AIR)
-            {
-                AddFace(block, BlockFace::LEFT);
-            }
-        }
-        if (chunk_z == CHUNK_SIZE - 1)
-        {
-            neighbour_chunk_offset = std::pair<int,int>(m_chunk.m_x, m_chunk.m_z+CHUNK_SIZE);
-            Chunk* chunk =  m_scene.GetChunk(neighbour_chunk_offset);
-            if (chunk)
-            {
-                neighbour_type = chunk->GetBlockType(chunk_x, chunk_y, 0);
-                if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::NONE)
-                {
-                    AddFace(block, BlockFace::RIGHT);
-                }
-            }
-        }
-        else
-        {
-            neighbour_type = m_chunk.GetBlockType(chunk_x, chunk_y, chunk_z + 1);
-            if (neighbour_type == BlockType::AIR)
-            {
-                AddFace(block, BlockFace::RIGHT);
-            }
-        }
-
-        neighbour_type = m_chunk.GetBlockType(chunk_x, chunk_y + 1, chunk_z);
-        if (neighbour_type == BlockType::AIR)
-        {
-            AddFace(block, BlockFace::TOP);
-        }
-
-        neighbour_type = m_chunk.GetBlockType(chunk_x, chunk_y - 1, chunk_z);
-        if (neighbour_type == BlockType::AIR)
-        {
-            AddFace(block, BlockFace::BOTTOM);
+            AddFace(block, face);
         }
     }
+}
+
+std::vector<BlockFace> Mesh::DetermineVisibleFaces(Block& block)
+{
+
+    std::vector<BlockFace> faces;
+    BlockType neighbour_type;
+
+    int chunk_x = block.position.x - m_chunk.m_x;
+    int chunk_y = block.position.y;
+    int chunk_z = block.position.z - m_chunk.m_z;
+
+    std::pair<int, int> neighbour_chunk_offset;
+    if (chunk_x == 0) 
+    {
+        neighbour_chunk_offset = std::pair<int,int>(m_chunk.m_x-CHUNK_SIZE, m_chunk.m_z);
+        auto chunk =  m_scene.GetChunk(neighbour_chunk_offset);
+        if (chunk)
+        {
+            neighbour_type = chunk->GetBlockType(CHUNK_SIZE-1, chunk_y, chunk_z);
+            if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::WATER || neighbour_type == BlockType::NONE)
+            {
+                faces.push_back(BlockFace::BACK);
+            }
+        }
+    }
+    else 
+    {
+        neighbour_type = m_chunk.GetBlockType(chunk_x - 1, chunk_y, chunk_z);
+        if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::WATER)
+        {
+            faces.push_back(BlockFace::BACK);
+        }
+    }
+    if (chunk_x == CHUNK_SIZE - 1)
+    {
+        neighbour_chunk_offset = std::pair<int,int>(m_chunk.m_x+CHUNK_SIZE, m_chunk.m_z);
+        auto chunk =  m_scene.GetChunk(neighbour_chunk_offset);
+        if (chunk)
+        {
+            neighbour_type = chunk->GetBlockType(0, chunk_y, chunk_z);
+            if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::WATER || neighbour_type == BlockType::NONE)
+            {
+                faces.push_back(BlockFace::FRONT);
+            }
+        }
+    }
+    else
+    {
+        neighbour_type = m_chunk.GetBlockType(chunk_x + 1, chunk_y, chunk_z);
+        if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::WATER)
+        {
+            faces.push_back(BlockFace::FRONT);
+        }
+    }
+    if (chunk_z == 0)
+    {
+        neighbour_chunk_offset = std::pair<int,int>(m_chunk.m_x, m_chunk.m_z-CHUNK_SIZE);
+        auto chunk =  m_scene.GetChunk(neighbour_chunk_offset);
+        if (chunk)
+        {
+            neighbour_type = chunk->GetBlockType(chunk_x, chunk_y, CHUNK_SIZE-1);
+            if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::WATER || neighbour_type == BlockType::NONE)
+            {
+                faces.push_back(BlockFace::LEFT);
+            }
+        }
+    }
+    else
+    {
+        neighbour_type = m_chunk.GetBlockType(chunk_x, chunk_y, chunk_z - 1);
+        if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::WATER)
+        {
+            faces.push_back(BlockFace::LEFT);
+        }
+    }
+    if (chunk_z == CHUNK_SIZE - 1)
+    {
+        neighbour_chunk_offset = std::pair<int,int>(m_chunk.m_x, m_chunk.m_z+CHUNK_SIZE);
+        auto chunk =  m_scene.GetChunk(neighbour_chunk_offset);
+        if (chunk)
+        {
+            neighbour_type = chunk->GetBlockType(chunk_x, chunk_y, 0);
+            if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::WATER || neighbour_type == BlockType::NONE)
+            {
+                faces.push_back(BlockFace::RIGHT);
+            }
+        }
+    }
+    else
+    {
+        neighbour_type = m_chunk.GetBlockType(chunk_x, chunk_y, chunk_z + 1);
+        if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::WATER)
+        {
+            faces.push_back(BlockFace::RIGHT);
+        }
+    }
+
+    neighbour_type = m_chunk.GetBlockType(chunk_x, chunk_y + 1, chunk_z);
+    if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::WATER)
+    {
+        faces.push_back(BlockFace::TOP);
+    }
+
+    neighbour_type = m_chunk.GetBlockType(chunk_x, chunk_y - 1, chunk_z);
+    if (neighbour_type == BlockType::AIR || neighbour_type == BlockType::WATER)
+    {
+        faces.push_back(BlockFace::BOTTOM);
+    }
+
+    return faces;
 }
 
 void Mesh::AddFace(Block& block, BlockFace face)

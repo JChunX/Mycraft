@@ -74,6 +74,11 @@ void Shader::Delete()
 	glDeleteProgram(ID);
 }
 
+void Shader::SetBool(const char* name, bool value)
+{
+	glUniform1i(glGetUniformLocation(ID, name), (int)value);
+}
+
 void Shader::SetFloat(const char* name, float value)
 {
 	glUniform1f(glGetUniformLocation(ID, name), value);

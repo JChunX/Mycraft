@@ -104,6 +104,9 @@ void BiomeManager::GenerateBiomes(Chunk& chunk, int ymin, int ymax)
                         // water-adjacent block type
                         chunk.m_chunkdata.emplace_back(layers[2], block_position);
                     }
+                    else if (y < WATER_LEVEL) {
+                        chunk.m_chunkdata.emplace_back(layers[1], block_position);
+                    }
                     else {
                         // surface block type
                         chunk.m_chunkdata.emplace_back(layers[3], block_position);

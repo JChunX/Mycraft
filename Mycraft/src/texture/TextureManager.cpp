@@ -93,6 +93,9 @@ glm::vec4 TextureManager::RetrieveBlockTextureRecolor(BlockType type, BlockFace 
     {
         case BlockType::GRASS:
             break;
+        case BlockType::WATER:
+            color *= glm::vec4(1.0f, 1.0f, 1.0f, 0.8f);
+            return color;
         default:
             return color;
     }

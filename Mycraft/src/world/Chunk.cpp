@@ -38,11 +38,11 @@ void Chunk::SetBlock(int x, int y, int z, Block& block)
     m_chunkdata[GetIndex(x, y, z)] = block;
 }
 
-Block* Chunk::GetBlock(int x, int y, int z)
+std::shared_ptr<Block> Chunk::GetBlock(int x, int y, int z)
 {
     if (!IsInChunk(x, y, z))
-        return nullptr;
-    return &(m_chunkdata[GetIndex(x, y, z)]);
+        return std::shared_ptr<Block>(nullptr);
+    return std::make_shared<Block>(m_chunkdata[GetIndex(x, y, z)]);
 }
 
 BlockType Chunk::GetBlockType(int x, int y, int z)

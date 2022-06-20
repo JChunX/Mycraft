@@ -4,6 +4,7 @@
 #include "Renderer.h"
 #include "Chunk.h"
 #include "Mesh.h"
+#include "Fluid.h"
 
 class ChunkRenderer : public Renderer
 {

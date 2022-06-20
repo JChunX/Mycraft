@@ -6,7 +6,7 @@ BlockTexture::BlockTexture(const char* path)
 
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true);  
-    unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0); 
+    unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 4); 
 
     if (!data)
     {

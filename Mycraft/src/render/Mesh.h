@@ -1,11 +1,11 @@
 #ifndef MESH_H
 #define MESH_H
 
+
 class Scene;
 
 #include "Renderable.h"
-#include"Chunk.h"
-#include"Scene.h"
+#include "Chunk.h"
 
 class Mesh: public Renderable
 {
@@ -21,7 +21,10 @@ public:
     void Render() override;
     void GenerateMesh();
     void Buffer() override;
+    std::vector<BlockFace> DetermineVisibleFaces(Block& block);
     void AddFace(Block& block, BlockFace face);
 };
+
+#include "Scene.h"
 
 #endif // MESH_H

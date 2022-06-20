@@ -29,9 +29,9 @@ void Scene::Update()
     LoadChunks(position.x, position.z);
 
     glm::vec3 heading = m_camera.GetHeadingVector();
-    Block* current_block = GetRaycastTarget(position, heading);
+    auto current_block = GetRaycastTarget(position, heading);
 
-    if (current_block != nullptr)
+    if (current_block)
     {
         std::cout << "Current block position: " << current_block->position.x << " " << current_block->position.y << " " << current_block->position.z << std::endl;
     }
@@ -59,6 +59,7 @@ void Scene::LoadChunks(int x, int z)
         {
 
             m_meshes.find(it->first)->second.should_erase = true;
+            m_fluid_meshes.find(it->first)->second.should_erase = true;
             m_current_chunks.erase(it);
         }
     }
@@ -161,12 +162,12 @@ std::pair<int, int> Scene::GetChunkOffset(int x, int z)
     return std::pair<int, int>(xc, zc);
 }
 
-Block* Scene::GetBlock(int x, int y, int z)
+std::shared_ptr<Block> Scene::GetBlock(int x, int y, int z)
 {
     std::pair<int, int> chunk_coords = GetChunkOffset(x, z);
 
-    Chunk* chunk = GetChunk(chunk_coords);
-    if (chunk != nullptr)
+    auto chunk = GetChunk(chunk_coords);
+    if (chunk)
     {
         int xc = chunk->m_x;
         int zc = chunk->m_z;
@@ -175,11 +176,16 @@ Block* Scene::GetBlock(int x, int y, int z)
     }
     else
     {
-        return nullptr;
+        return std::shared_ptr<Block>(nullptr);
     }
 }
 
-Block* Scene::GetRaycastTarget(glm::vec3 ray_origin, glm::vec3 ray_direction)
+std::shared_ptr<Block> Scene::GetBlock(glm::vec3 pos)
+{
+    return GetBlock(static_cast<int>(pos.x), static_cast<int>(pos.y), static_cast<int>(pos.z));
+}
+
+std::shared_ptr<Block> Scene::GetRaycastTarget(glm::vec3 ray_origin, glm::vec3 ray_direction)
 {
 
     float t = 0.0f;
@@ -192,15 +198,15 @@ Block* Scene::GetRaycastTarget(glm::vec3 ray_origin, glm::vec3 ray_direction)
     {
         p = ray_origin + ray_direction * t;
 
-        Block* block = GetBlock(p.x, p.y, p.z);
-        if (block != nullptr && block->block_type != BlockType::AIR)
+        auto block = GetBlock(p.x, p.y, p.z);
+        if (block && block->block_type != BlockType::AIR)
         {
             return block;
         }
         t += t_step;
     }
 
-    return nullptr;
+    return std::shared_ptr<Block>(nullptr);
 }
 
 Scene::~Scene()

@@ -26,6 +26,8 @@ public:
 	// Deletes the Shader Program
 	void Delete();
 
+	void SetBool(const char* name, bool value);
+
 	void SetFloat(const char* name, float value);
 
 	void SetVec2(const char* name, float x, float y);
