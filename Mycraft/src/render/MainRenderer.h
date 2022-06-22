@@ -12,12 +12,14 @@ class MainRenderer
 {
 public:
     Camera& m_camera;
+    Scene& m_scene;
     TextureManager m_texture_manager;
     ChunkRenderer m_chunk_renderer;
     SkyboxRenderer m_skybox_renderer;
     
-    MainRenderer(Camera& camera);
+    MainRenderer(Camera& camera, Scene& scene);
     void Render(Scene& scene);
+    void Begin(bool* terminate_flag);
 };
 
 #endif // MAINRENDERER_H

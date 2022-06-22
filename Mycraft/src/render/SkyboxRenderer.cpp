@@ -1,8 +1,8 @@
 #include "SkyboxRenderer.h"
 
-SkyboxRenderer::SkyboxRenderer(Camera& camera, TextureManager& texture_manager)
-    : Renderer(camera, "shaders/skybox.vert", "shaders/skybox.frag"),
-      m_skybox(texture_manager)
+SkyboxRenderer::SkyboxRenderer(Camera& camera, Scene& scene, TextureManager& texture_manager)
+    : Renderer(camera, scene, texture_manager, "shaders/skybox.vert", "shaders/skybox.frag"),
+      m_skybox(m_texture_manager)
 {
     
 }

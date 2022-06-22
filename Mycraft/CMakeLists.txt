@@ -11,8 +11,18 @@ if(APPLE)
     add_definitions(-Wno-deprecated-declarations) 
 endif()
 
+set(Boost_USE_DEBUG_LIBS         OFF)
+set(Boost_USE_RELEASE_LIBS       ON)
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+
 find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(Boost REQUIRED)
+
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+endif()
 
 add_executable(Mycraft)
 target_sources(Mycraft PRIVATE src/main.cpp 
@@ -32,5 +42,6 @@ add_subdirectory(src/world)
 
 target_link_libraries(Mycraft glfw)
 target_link_libraries(Mycraft OpenGL::GL)
+target_link_libraries(Mycraft ${Boost_LIBRARIES})
 
 install(TARGETS Mycraft DESTINATION bin)

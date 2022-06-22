@@ -1,10 +1,11 @@
 #include"MainRenderer.h"
 
-MainRenderer::MainRenderer(Camera& camera) 
+MainRenderer::MainRenderer(Camera& camera, Scene& scene)
     : m_camera(camera),
+      m_scene(scene),
       m_texture_manager(TextureManager()),
-      m_chunk_renderer(m_camera),
-      m_skybox_renderer(m_camera, m_texture_manager)
+      m_chunk_renderer(m_camera, m_scene, m_texture_manager),
+      m_skybox_renderer(m_camera, m_scene, m_texture_manager)
 {
 
 }

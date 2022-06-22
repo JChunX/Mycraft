@@ -6,7 +6,7 @@ Application::Application()
 				SCR_HEIGHT, 70.0f, 0.1f, 300.0f, 
                 glm::vec3(0.0f, 104.5f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f))),
       m_scene(Scene(m_camera)),
-      m_renderer(MainRenderer(m_camera))
+      m_renderer(MainRenderer(m_camera, m_scene))
 {
 
 }
@@ -25,7 +25,7 @@ void Application::Run()
     while (!glfwWindowShouldClose(m_context.window))
     {
         float delta_time = Time();
-        log_debug(m_camera);
+        //log_debug(m_camera);
         InputBroadcaster::ReadInputs(m_context.window, delta_time);
         
         m_renderer.Render(m_scene);
@@ -36,7 +36,6 @@ void Application::Run()
     }
     terminate_flag = true;
     scene_thread.join();
-    glfwTerminate();
 }
 
 float Application::Time()
@@ -58,5 +57,5 @@ void Application::ExitCallback(GLFWwindow* window, int key, int scancode, int ac
 
 Application::~Application()
 {
-
+    //glfwTerminate();
 }

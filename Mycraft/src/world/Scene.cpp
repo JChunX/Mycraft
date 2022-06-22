@@ -1,4 +1,6 @@
 #include"Scene.h"
+#include <boost/asio/thread_pool.hpp>
+#include <boost/asio/post.hpp>
 
 Scene::Scene(Camera& camera)
     : m_camera(camera)
@@ -16,7 +18,10 @@ void Scene::Begin(bool* terminate_flag)
         delta = glfwGetTime() - last_update;
         if (delta > 1.0f/SCENE_UPDATE_FREQ)
         {
+            double t0 = glfwGetTime();
             Update();
+            double t1 = glfwGetTime();
+            std::cout << "+++Update time: " << t1 - t0 << std::endl;
             last_update = glfwGetTime();
         }
 
@@ -49,7 +54,6 @@ void Scene::LoadChunks(int x, int z)
     int max_xc = xc0 + (CHUNK_LOAD_DISTANCE-1) * CHUNK_SIZE;
     int max_zc = zc0 + (CHUNK_LOAD_DISTANCE-1) * CHUNK_SIZE;
     
-    std::unique_lock<std::mutex> chunk_lock(m_chunks_mutex);
     std::unique_lock<std::mutex> mesh_lock(m_meshes_mutex);
     // remove far chunks
     for (auto it = m_current_chunks.begin(), next_it = it; it != m_current_chunks.end(); it = next_it)
@@ -60,10 +64,11 @@ void Scene::LoadChunks(int x, int z)
 
             m_meshes.find(it->first)->second.should_erase = true;
             m_fluid_meshes.find(it->first)->second.should_erase = true;
+            std::unique_lock<std::mutex> chunk_lock(m_chunks_mutex);
             m_current_chunks.erase(it);
+            chunk_lock.unlock();
         }
     }
-    chunk_lock.unlock();
     mesh_lock.unlock();
 
     std::vector<std::pair<int,int>> chunk_coords_list;
@@ -84,9 +89,47 @@ void Scene::LoadChunks(int x, int z)
         }
     }
 
+    std::cout << "Chunk coords list size: " << chunk_coords_list.size() << std::endl;
+
+    if (chunk_coords_list.size() == 0) {
+        return;
+    }
+
     SortChunksByDistance(chunk_coords_list, m_camera.position.x, m_camera.position.z);
 
-    LoadChunkAux(chunk_coords_list);
+    std::vector<std::vector<std::pair<int, int>>> chunk_coords_list_splitted;
+    for (int i=0; i<NUM_CHUNK_POOL_WORKERS; i++)
+    {
+        chunk_coords_list_splitted.push_back(std::vector<std::pair<int, int>>());
+    }
+    for (int i=0; i<chunk_coords_list.size(); i++)
+    {
+        chunk_coords_list_splitted[i % NUM_CHUNK_POOL_WORKERS].push_back(chunk_coords_list[i]);
+    }
+
+    boost::asio::thread_pool thread_pool(NUM_CHUNK_POOL_WORKERS);
+    for (int i=0; i<NUM_CHUNK_POOL_WORKERS; i++)
+    {
+        boost::asio::post(thread_pool, std::bind(&Scene::LoadChunkAux, this, chunk_coords_list_splitted[i]));
+    }
+    thread_pool.join();
+
+    //mesh_lock.lock();
+    for (auto it = m_meshes.begin(); it != m_meshes.end(); it++)
+    {
+        if (!it->second.should_erase && !it->second.hasmesh)
+        {
+            it->second.GenerateMesh();
+        }
+    }
+
+    for (auto it = m_fluid_meshes.begin(); it != m_fluid_meshes.end(); it++)
+    {
+        if (!it->second.should_erase && !it->second.hasmesh)
+        {
+            it->second.GenerateMesh();
+        }
+    }
 }
 
 void Scene::SortChunksByDistance(std::vector<std::pair<int, int>>& chunk_coords_list, int x, int z)
@@ -99,15 +142,16 @@ void Scene::SortChunksByDistance(std::vector<std::pair<int, int>>& chunk_coords_
 
 void Scene::LoadChunkAux(std::vector<std::pair<int,int>>& chunk_coords_list)
 {
-
+    std::cout << "Loading chunks: " << chunk_coords_list.size() << std::endl;
     for (auto it = chunk_coords_list.begin(); it != chunk_coords_list.end(); it++)
     {
         std::pair<int,int> chunk_coords = *it;
         int xc = chunk_coords.first;
         int zc = chunk_coords.second;
 
+        std::unique_lock<std::mutex> chunk_lock(m_chunks_mutex);
         m_current_chunks.try_emplace(chunk_coords, xc, zc);
-
+        chunk_lock.unlock();
         // neighbor chunks now need update
         for (int neighbor_idx_x=-1; neighbor_idx_x<=1; neighbor_idx_x++)
         {
@@ -211,5 +255,4 @@ std::shared_ptr<Block> Scene::GetRaycastTarget(glm::vec3 ray_origin, glm::vec3 r
 
 Scene::~Scene()
 {
-
 }

@@ -1,0 +1,7 @@
+/usr/bin/cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_C_COMPILER:FILEPATH=/bin/x86_64-linux-gnu-gcc-9 -DCMAKE_CXX_COMPILER:FILEPATH=/bin/x86_64-linux-gnu-g++-9 -DCMAKE_CXX_FLAGS=-pg -DCMAKE_EXE_LINKER_FLAGS=-pg -DCMAKE_SHARED_LINKER_FLAGS=-pg -S/home/jasonx/Dropbox/repos/Mycraft/Mycraft -B/home/jasonx/Dropbox/repos/Mycraft/Mycraft/build -G "Unix Makefiles"
+
+https://codeyarns.com/tech/2013-06-24-how-to-visualize-profiler-output-as-graph-using-gprof2dot.html
+
+gprof Mycraft | gprof2dot > profile.dot
+dot -Tpng profile.dot -o profile.png
+eog profile.png

@@ -7,7 +7,7 @@
 class SkyboxRenderer : public Renderer
 {
 public:
-    SkyboxRenderer(Camera& camera, TextureManager& texture_manager);
+    SkyboxRenderer(Camera& camera, Scene& scene, TextureManager& texture_manager);
     void Render(Scene& scene, TextureManager& texture_manager);
 private:
     Skybox m_skybox;

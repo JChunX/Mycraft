@@ -16,6 +16,7 @@ Mesh::~Mesh()
 
 void Mesh::Render()
 {
+    std::unique_lock<std::mutex> lock(m_mutex);
     m_vao.Bind();
     m_texture_manager.BindTexture(*(m_texture_manager.m_block_texture));
     glDrawArrays(GL_TRIANGLES, 0, n_faces*12);
@@ -24,6 +25,7 @@ void Mesh::Render()
 
 void Mesh::Buffer()
 {
+    std::unique_lock<std::mutex> lock(m_mutex);
     m_vao.Bind();
     float* vertices = &m_vertices[0];
     m_vbo.Buffer(vertices, n_faces*6*12*sizeof(float)); 
@@ -33,23 +35,33 @@ void Mesh::Buffer()
     m_vao.LinkAttrib(m_vbo, 3, 4, GL_FLOAT, 12*sizeof(float), (void*)(8*sizeof(float)));
     m_vao.Unbind();
     m_vbo.Unbind();
+    buffered = true;
 }
 
 void Mesh::GenerateMesh()
 {
-
+    //boost::asio::thread_pool thread_pool(NUM_RENDER_POOL_WORKERS);
     for (auto block : m_chunk.m_chunkdata)
     {    
         if (block.block_type == BlockType::AIR
             || block.block_type == BlockType::BEDROCK
             || block.block_type == BlockType::WATER)
             continue;
+        //boost::asio::post(thread_pool, std::bind(&Mesh::GenerateMeshAux, this, block));
+        GenerateMeshAux(block);
+        
+    }
+    //thread_pool.join();
+    std::unique_lock<std::mutex> lock(m_mutex);
+    hasmesh = true;
+}
 
-        std::vector<BlockFace> faces = DetermineVisibleFaces(block);
-        for (auto face : faces)
-        {
-            AddFace(block, face);
-        }
+void Mesh::GenerateMeshAux(Block& block)
+{
+    std::vector<BlockFace> faces = DetermineVisibleFaces(block);
+    for (auto face : faces)
+    {
+        AddFace(block, face);
     }
 }
 
@@ -166,7 +178,9 @@ std::vector<BlockFace> Mesh::DetermineVisibleFaces(Block& block)
 
 void Mesh::AddFace(Block& block, BlockFace face)
 {
+    std::unique_lock<std::mutex> blockface_lock(m_mutex);
     n_faces++;
+    blockface_lock.unlock();
     float x = block.position.x;
     float y = block.position.y;
     float z = block.position.z;
@@ -181,6 +195,7 @@ void Mesh::AddFace(Block& block, BlockFace face)
 
     glm::vec4 recolor = m_texture_manager.RetrieveBlockTextureRecolor(block.block_type, face, climate.x, climate.y);
 
+    std::unique_lock<std::mutex> vertices_lock(m_mutex);
     switch (face)
     {
     case BlockFace::TOP:

@@ -19,6 +19,8 @@ void Fluid::GenerateMesh()
             }
         }
     }
+    std::unique_lock<std::mutex> lock(m_mutex);
+    hasmesh = true;
 }
 
 std::vector<BlockFace> Fluid::DetermineVisibleFaces(Block& block)

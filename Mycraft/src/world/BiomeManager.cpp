@@ -71,7 +71,7 @@ std::vector<BlockType> BiomeManager::GetBlockLayers(BiomeType type)
 
 void BiomeManager::GenerateBiomes(Chunk& chunk, int ymin, int ymax)
 {
-    std::cout << "Generating biome..." << chunk.m_x << " " << chunk.m_z << std::endl;
+    //std::cout << "Generating biome..." << chunk.m_x << " " << chunk.m_z << std::endl;
     std::shared_ptr<Terrain> terrain = chunk.m_terrain;
 
     for (int z = 0; z < CHUNK_SIZE; z++) 

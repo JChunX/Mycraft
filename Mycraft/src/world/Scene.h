@@ -1,6 +1,8 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#define NUM_CHUNK_POOL_WORKERS 10
+
 class Mesh; 
 class Fluid;
 
