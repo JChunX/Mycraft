@@ -16,7 +16,7 @@ Mesh::~Mesh()
 
 void Mesh::Render()
 {
-    std::unique_lock<std::mutex> lock(m_mutex);
+    //std::unique_lock<std::mutex> lock(m_mutex);
     m_vao.Bind();
     m_texture_manager.BindTexture(*(m_texture_manager.m_block_texture));
     glDrawArrays(GL_TRIANGLES, 0, n_faces*12);
@@ -25,7 +25,7 @@ void Mesh::Render()
 
 void Mesh::Buffer()
 {
-    std::unique_lock<std::mutex> lock(m_mutex);
+    //std::unique_lock<std::mutex> lock(m_mutex);
     m_vao.Bind();
     float* vertices = &m_vertices[0];
     m_vbo.Buffer(vertices, n_faces*6*12*sizeof(float)); 
@@ -40,7 +40,9 @@ void Mesh::Buffer()
 
 void Mesh::GenerateMesh()
 {
+    m_vertices.clear();
     //boost::asio::thread_pool thread_pool(NUM_RENDER_POOL_WORKERS);
+
     for (auto block : m_chunk.m_chunkdata)
     {    
         if (block.block_type == BlockType::AIR
@@ -52,7 +54,6 @@ void Mesh::GenerateMesh()
         
     }
     //thread_pool.join();
-    std::unique_lock<std::mutex> lock(m_mutex);
     hasmesh = true;
 }
 
@@ -178,9 +179,9 @@ std::vector<BlockFace> Mesh::DetermineVisibleFaces(Block& block)
 
 void Mesh::AddFace(Block& block, BlockFace face)
 {
-    std::unique_lock<std::mutex> blockface_lock(m_mutex);
+    //std::unique_lock<std::mutex> blockface_lock(m_mutex);
     n_faces++;
-    blockface_lock.unlock();
+    //blockface_lock.unlock();
     float x = block.position.x;
     float y = block.position.y;
     float z = block.position.z;
@@ -195,62 +196,64 @@ void Mesh::AddFace(Block& block, BlockFace face)
 
     glm::vec4 recolor = m_texture_manager.RetrieveBlockTextureRecolor(block.block_type, face, climate.x, climate.y);
 
-    std::unique_lock<std::mutex> vertices_lock(m_mutex);
+    //std::unique_lock<std::mutex> vertices_lock(m_mutex);
+    std::vector<float> new_vertices;
     switch (face)
     {
     case BlockFace::TOP:
-        m_vertices.insert(m_vertices.end(), 
-        {-0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+         new_vertices = {
+         -0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
           0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
           0.5f+x,  0.5f+y,  0.5f+z,  0.0f,  1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
           0.5f+x,  0.5f+y,  0.5f+z,  0.0f,  1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
          -0.5f+x,  0.5f+y,  0.5f+z,  0.0f,  1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
-         -0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,});
+         -0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w};
         break;
     case BlockFace::BOTTOM:
-        m_vertices.insert(m_vertices.end(), 
-        {-0.5f+x, -0.5f+y, -0.5f+z,  0.0f, -1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+        new_vertices = {
+         -0.5f+x, -0.5f+y, -0.5f+z,  0.0f, -1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
           0.5f+x, -0.5f+y, -0.5f+z,  0.0f, -1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
           0.5f+x, -0.5f+y,  0.5f+z,  0.0f, -1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
           0.5f+x, -0.5f+y,  0.5f+z,  0.0f, -1.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
          -0.5f+x, -0.5f+y,  0.5f+z,  0.0f, -1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
-         -0.5f+x, -0.5f+y, -0.5f+z,  0.0f, -1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,});
+         -0.5f+x, -0.5f+y, -0.5f+z,  0.0f, -1.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w};
         break;
     case BlockFace::RIGHT:
-        m_vertices.insert(m_vertices.end(), 
-        {-0.5f+x, -0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+        new_vertices = {
+         -0.5f+x, -0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
           0.5f+x, -0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
           0.5f+x,  0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
           0.5f+x,  0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
          -0.5f+x,  0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
-         -0.5f+x, -0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,});
+         -0.5f+x, -0.5f+y, 0.5f+z,  0.0f,  0.0f,  1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w};
         break;
     case BlockFace::LEFT:
-        m_vertices.insert(m_vertices.end(), 
-        {-0.5f+x, -0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+        new_vertices = {
+         -0.5f+x, -0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
           0.5f+x, -0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
           0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
           0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
          -0.5f+x,  0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
-         -0.5f+x, -0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,});
+         -0.5f+x, -0.5f+y, -0.5f+z,  0.0f,  0.0f, -1.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w};
         break;
     case BlockFace::FRONT:
-        m_vertices.insert(m_vertices.end(), 
-        {0.5f+x,  0.5f+y,  0.5f+z,  1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+        new_vertices = {
+         0.5f+x,  0.5f+y,  0.5f+z,  1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
          0.5f+x,  0.5f+y, -0.5f+z,  1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
          0.5f+x, -0.5f+y, -0.5f+z,  1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
          0.5f+x, -0.5f+y, -0.5f+z,  1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
          0.5f+x, -0.5f+y,  0.5f+z,  1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
-         0.5f+x,  0.5f+y,  0.5f+z,  1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,});
+         0.5f+x,  0.5f+y,  0.5f+z,  1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w};
         break;
     case BlockFace::BACK:
-        m_vertices.insert(m_vertices.end(), 
-        {-0.5f+x,  0.5f+y,  0.5f+z, -1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
+        new_vertices = {
+         -0.5f+x,  0.5f+y,  0.5f+z, -1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
          -0.5f+x,  0.5f+y, -0.5f+z, -1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
          -0.5f+x, -0.5f+y, -0.5f+z, -1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
          -0.5f+x, -0.5f+y, -0.5f+z, -1.0f,  0.0f,  0.0f,  1.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
          -0.5f+x, -0.5f+y,  0.5f+z, -1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  0.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,
-         -0.5f+x,  0.5f+y,  0.5f+z, -1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w,});
+         -0.5f+x,  0.5f+y,  0.5f+z, -1.0f,  0.0f,  0.0f,  0.0f/32.0f+tex_coord_x,  1.0f/32.0f+tex_coord_y, recolor.x, recolor.y, recolor.z, recolor.w};
         break;
     }
+    m_vertices.insert(m_vertices.end(), new_vertices.begin(), new_vertices.end());
 }

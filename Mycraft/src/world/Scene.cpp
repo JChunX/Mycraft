@@ -114,12 +114,14 @@ void Scene::LoadChunks(int x, int z)
     }
     thread_pool.join();
 
-    //mesh_lock.lock();
     for (auto it = m_meshes.begin(); it != m_meshes.end(); it++)
     {
         if (!it->second.should_erase && !it->second.hasmesh)
         {
+            mesh_lock.lock();
             it->second.GenerateMesh();
+            mesh_lock.unlock();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
 
@@ -127,7 +129,10 @@ void Scene::LoadChunks(int x, int z)
     {
         if (!it->second.should_erase && !it->second.hasmesh)
         {
+            mesh_lock.lock();
             it->second.GenerateMesh();
+            mesh_lock.unlock();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
 }
@@ -151,7 +156,7 @@ void Scene::LoadChunkAux(std::vector<std::pair<int,int>>& chunk_coords_list)
 
         std::unique_lock<std::mutex> chunk_lock(m_chunks_mutex);
         m_current_chunks.try_emplace(chunk_coords, xc, zc);
-        chunk_lock.unlock();
+        
         // neighbor chunks now need update
         for (int neighbor_idx_x=-1; neighbor_idx_x<=1; neighbor_idx_x++)
         {
@@ -171,6 +176,7 @@ void Scene::LoadChunkAux(std::vector<std::pair<int,int>>& chunk_coords_list)
                 }
             }
         }
+        chunk_lock.unlock();
     }
 }
 
