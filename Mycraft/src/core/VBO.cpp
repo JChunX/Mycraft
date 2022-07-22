@@ -11,9 +11,13 @@ VBO::VBO()
 
 void VBO::Buffer(GLfloat* vertices, GLsizeiptr size)
 {
-	glGenBuffers(1, &ID);
+	if (!has_buffer)
+	{
+		glGenBuffers(1, &ID);
+		has_buffer = true;
+	}
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
-	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_DYNAMIC_DRAW);
 }
 
 // Binds the VBO

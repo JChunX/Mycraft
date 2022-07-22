@@ -8,7 +8,7 @@ class VBO
 public:
     // Reference ID of the Vertex Buffer Object
     GLuint ID;
-
+    bool has_buffer = false;
     VBO();
     
     void Buffer(GLfloat* vertices, GLsizeiptr size);

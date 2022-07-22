@@ -38,11 +38,23 @@ void Mesh::Buffer()
     buffered = true;
 }
 
+void Mesh::UpdateBuffer()
+{
+    //std::unique_lock<std::mutex> lock(m_mutex);
+    if(buffered)
+    {
+        float* vertices = &m_vertices[0];
+        std::cout << "Updating buffer, nfaces= " << n_faces << std::endl;
+        m_vbo.Buffer(vertices, n_faces*6*12*sizeof(float)); 
+        m_vbo.Unbind();
+    }
+}
+
 void Mesh::GenerateMesh()
 {
     m_vertices.clear();
     //boost::asio::thread_pool thread_pool(NUM_RENDER_POOL_WORKERS);
-
+    n_faces = 0;
     for (auto block : m_chunk.m_chunkdata)
     {    
         if (block.block_type == BlockType::AIR

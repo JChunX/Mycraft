@@ -26,6 +26,7 @@ public:
     ~Mesh();
     void Render() override;
     void GenerateMesh();
+    void UpdateBuffer();
     void Buffer() override;
     std::vector<BlockFace> DetermineVisibleFaces(Block& block);
     void AddFace(Block& block, BlockFace face);

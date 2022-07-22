@@ -43,7 +43,7 @@ float Application::Time()
     float current_frame = glfwGetTime();
     float delta_time = current_frame - m_last_frame;
     m_last_frame = current_frame;
-    std::cout << "FPS: " << 1.0f / delta_time << std::endl;
+    //std::cout << "FPS: " << 1.0f / delta_time << std::endl;
     return delta_time;
 }
 

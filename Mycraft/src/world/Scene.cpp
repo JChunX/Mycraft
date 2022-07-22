@@ -89,30 +89,37 @@ void Scene::LoadChunks(int x, int z)
         }
     }
 
-    std::cout << "Chunk coords list size: " << chunk_coords_list.size() << std::endl;
+    LoadChunkAux(chunk_coords_list);
 
-    if (chunk_coords_list.size() == 0) {
-        return;
-    }
-
-    SortChunksByDistance(chunk_coords_list, m_camera.position.x, m_camera.position.z);
-
-    std::vector<std::vector<std::pair<int, int>>> chunk_coords_list_splitted;
-    for (int i=0; i<NUM_CHUNK_POOL_WORKERS; i++)
+    for (auto it = chunk_coords_list.begin(); it != chunk_coords_list.end(); it++)
     {
-        chunk_coords_list_splitted.push_back(std::vector<std::pair<int, int>>());
+        std::pair<int,int> chunk_coords = *it;
+        int xc = chunk_coords.first;
+        int zc = chunk_coords.second;
+        for (int neighbor_idx_x=-1; neighbor_idx_x<=1; neighbor_idx_x++)
+        {
+            for (int neighbor_idx_z=-1; neighbor_idx_z<=1; neighbor_idx_z++)
+            {
+                if ((neighbor_idx_x == 0 && neighbor_idx_z == 0) || (neighbor_idx_x != 0 && neighbor_idx_z != 0))
+                {
+                    continue;
+                }
+                int neighbor_xc = xc + neighbor_idx_x * CHUNK_SIZE;
+                int neighbor_zc = zc + neighbor_idx_z * CHUNK_SIZE;
+                std::pair<int,int> neighbor_key = std::pair<int, int>(neighbor_xc, neighbor_zc);
+                
+                if (m_current_chunks.find(neighbor_key) != m_current_chunks.end() && 
+                    std::find(chunk_coords_list.begin(), chunk_coords_list.end(), neighbor_key) == chunk_coords_list.end())
+                {
+                    m_current_chunks[neighbor_key].need_mesh_update = true;
+                    std::cout << "Need mesh update for neighbor chunk: " << neighbor_xc << " " << neighbor_zc << std::endl;
+                    mesh_lock.lock();
+                    m_meshes.find(neighbor_key)->second.GenerateMesh();
+                    mesh_lock.unlock();
+                }
+            }
+        }
     }
-    for (int i=0; i<chunk_coords_list.size(); i++)
-    {
-        chunk_coords_list_splitted[i % NUM_CHUNK_POOL_WORKERS].push_back(chunk_coords_list[i]);
-    }
-
-    boost::asio::thread_pool thread_pool(NUM_CHUNK_POOL_WORKERS);
-    for (int i=0; i<NUM_CHUNK_POOL_WORKERS; i++)
-    {
-        boost::asio::post(thread_pool, std::bind(&Scene::LoadChunkAux, this, chunk_coords_list_splitted[i]));
-    }
-    thread_pool.join();
 
     for (auto it = m_meshes.begin(); it != m_meshes.end(); it++)
     {
@@ -156,27 +163,8 @@ void Scene::LoadChunkAux(std::vector<std::pair<int,int>>& chunk_coords_list)
 
         std::unique_lock<std::mutex> chunk_lock(m_chunks_mutex);
         m_current_chunks.try_emplace(chunk_coords, xc, zc);
-        
-        // neighbor chunks now need update
-        for (int neighbor_idx_x=-1; neighbor_idx_x<=1; neighbor_idx_x++)
-        {
-            for (int neighbor_idx_z=-1; neighbor_idx_z<=1; neighbor_idx_z++)
-            {
-                if ((neighbor_idx_x == 0 && neighbor_idx_z == 0) || (neighbor_idx_x != 0 && neighbor_idx_z != 0))
-                {
-                    continue;
-                }
-                int neighbor_xc = xc + neighbor_idx_x * CHUNK_SIZE;
-                int neighbor_zc = zc + neighbor_idx_z * CHUNK_SIZE;
-                std::pair<int,int> neighbor_key = std::pair<int, int>(neighbor_xc, neighbor_zc);
-                
-                if (m_current_chunks.find(neighbor_key) != m_current_chunks.end())
-                {
-                    m_current_chunks[neighbor_key].need_mesh_update = true;
-                }
-            }
-        }
         chunk_lock.unlock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
 
