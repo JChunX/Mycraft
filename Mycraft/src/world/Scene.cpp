@@ -108,14 +108,15 @@ void Scene::LoadChunks(int x, int z)
                 int neighbor_zc = zc + neighbor_idx_z * CHUNK_SIZE;
                 std::pair<int,int> neighbor_key = std::pair<int, int>(neighbor_xc, neighbor_zc);
                 
-                if (m_current_chunks.find(neighbor_key) != m_current_chunks.end() && 
-                    std::find(chunk_coords_list.begin(), chunk_coords_list.end(), neighbor_key) == chunk_coords_list.end())
+                if (m_current_chunks.find(neighbor_key) != m_current_chunks.end()
+                     && std::find(chunk_coords_list.begin(), chunk_coords_list.end(), neighbor_key) == chunk_coords_list.end())
                 {
                     m_current_chunks[neighbor_key].need_mesh_update = true;
                     std::cout << "Need mesh update for neighbor chunk: " << neighbor_xc << " " << neighbor_zc << std::endl;
                     mesh_lock.lock();
                     m_meshes.find(neighbor_key)->second.GenerateMesh();
                     mesh_lock.unlock();
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
                 }
             }
         }
@@ -128,7 +129,7 @@ void Scene::LoadChunks(int x, int z)
             mesh_lock.lock();
             it->second.GenerateMesh();
             mesh_lock.unlock();
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
     }
 

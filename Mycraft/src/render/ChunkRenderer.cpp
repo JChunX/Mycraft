@@ -41,11 +41,10 @@ void ChunkRenderer::Render(Scene& scene, TextureManager& texture_manager)
 
             if (!result.second) 
             {
-            //    scene.m_meshes.find(kv.first)->second.GenerateMesh();
                 scene.m_meshes.find(kv.first)->second.UpdateBuffer();
             }
 
-            auto result2 = scene.m_fluid_meshes.try_emplace(kv.first, scene, kv.first, texture_manager);
+            scene.m_fluid_meshes.try_emplace(kv.first, scene, kv.first, texture_manager);
 
             chunk->need_mesh_update = false;
         }
