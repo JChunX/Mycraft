@@ -11,12 +11,12 @@ Scene::Scene(Camera& camera)
 void Scene::Begin(bool* terminate_flag)
 {
     float last_update = glfwGetTime();
-    float delta;
+    float dt;
     while (!(*terminate_flag))
     {
         // only update if enough time has passed
-        delta = glfwGetTime() - last_update;
-        if (delta > 1.0f/SCENE_UPDATE_FREQ)
+        dt = glfwGetTime() - last_update;
+        if (dt > 1.0f/SCENE_UPDATE_FREQ)
         {
             double t0 = glfwGetTime();
             Update();
@@ -31,7 +31,8 @@ void Scene::Begin(bool* terminate_flag)
 void Scene::Update()
 {
     glm::vec3 position = m_camera.position;
-    LoadChunks(position.x, position.z);
+    LoadChunks(position.x, position.z, position - m_camera_position_last);
+    m_camera_position_last = position;
 
     glm::vec3 heading = m_camera.GetHeadingVector();
     auto current_block = GetRaycastTarget(position, heading);
@@ -42,17 +43,20 @@ void Scene::Update()
     }
 }
 
-void Scene::LoadChunks(int x, int z)
+void Scene::LoadChunks(int x, int z, glm::vec3 delta)
 {
     
     glm::vec2 nearest_chunk_offset = static_cast<float>(CHUNK_SIZE) * glm::vec2(round(x / CHUNK_SIZE), round(z / CHUNK_SIZE));
     int xc0 = nearest_chunk_offset.x;
     int zc0 = nearest_chunk_offset.y;
+    std::cout << "Nearest chunk offset: " << xc0 << " " << zc0 << std::endl;
 
-    int min_xc = xc0 - CHUNK_LOAD_DISTANCE * CHUNK_SIZE;
-    int min_zc = zc0 - CHUNK_LOAD_DISTANCE * CHUNK_SIZE;
-    int max_xc = xc0 + (CHUNK_LOAD_DISTANCE-1) * CHUNK_SIZE;
-    int max_zc = zc0 + (CHUNK_LOAD_DISTANCE-1) * CHUNK_SIZE;
+
+    int chunk_render_dist = CHUNK_LOAD_DISTANCE;
+    int min_xc = xc0 - chunk_render_dist * CHUNK_SIZE;
+    int min_zc = zc0 - chunk_render_dist * CHUNK_SIZE;
+    int max_xc = xc0 + (chunk_render_dist-1) * CHUNK_SIZE;
+    int max_zc = zc0 + (chunk_render_dist-1) * CHUNK_SIZE;
     
     std::unique_lock<std::mutex> mesh_lock(m_meshes_mutex);
     // remove far chunks
@@ -71,10 +75,24 @@ void Scene::LoadChunks(int x, int z)
     }
     mesh_lock.unlock();
 
-    std::vector<std::pair<int,int>> chunk_coords_list;
-    for (int chunk_idx_x=-CHUNK_LOAD_DISTANCE; chunk_idx_x<CHUNK_LOAD_DISTANCE; chunk_idx_x++)
+    // adjust xc0, zc0 according to camera delta
+    xc0 += CHUNK_SIZE * static_cast<int>(delta.x * m_camera.dt * CHUNK_LOAD_DISTANCE / 2 );
+    zc0 += CHUNK_SIZE * static_cast<int>(delta.z * m_camera.dt * CHUNK_LOAD_DISTANCE / 2 );
+    std::cout << "delta rounded: " << static_cast<int>(delta.x) << " " << static_cast<int>(delta.z) << std::endl;
+
+    // reduce chunk load distance if player is moving
+    int chunk_load_dist = CHUNK_LOAD_DISTANCE;
+    if (delta.x != 0 || delta.z != 0)
     {
-        for (int chunk_idx_z=-CHUNK_LOAD_DISTANCE; chunk_idx_z<CHUNK_LOAD_DISTANCE; chunk_idx_z++)
+        chunk_load_dist = static_cast<int>(CHUNK_LOAD_DISTANCE / 3);
+    }
+    std::cout << "Chunk load distance: " << chunk_load_dist << std::endl;
+    std::cout << "delta: " << delta.x << " " << delta.z << std::endl;
+
+    std::vector<std::pair<int,int>> chunk_coords_list;
+    for (int chunk_idx_x=-chunk_load_dist; chunk_idx_x<chunk_load_dist; chunk_idx_x++)
+    {
+        for (int chunk_idx_z=-chunk_load_dist; chunk_idx_z<chunk_load_dist; chunk_idx_z++)
         {
 
             // only process if xc, zc within chunk load distance radius
@@ -89,7 +107,29 @@ void Scene::LoadChunks(int x, int z)
         }
     }
 
-    LoadChunkAux(chunk_coords_list);
+    std::cout << "Chunk coords list size: " << chunk_coords_list.size() << std::endl;
+
+    if (chunk_coords_list.size() == 0) {
+        return;
+    }
+
+    std::vector<std::vector<std::pair<int, int>>> chunk_coords_list_splitted;
+    for (int i=0; i<NUM_CHUNK_POOL_WORKERS; i++)
+    {
+        chunk_coords_list_splitted.push_back(std::vector<std::pair<int, int>>());
+    }
+    for (int i=0; i<chunk_coords_list.size(); i++)
+    {
+        chunk_coords_list_splitted[i % NUM_CHUNK_POOL_WORKERS].push_back(chunk_coords_list[i]);
+    }
+
+    boost::asio::thread_pool thread_pool(NUM_CHUNK_POOL_WORKERS);
+    for (int i=0; i<NUM_CHUNK_POOL_WORKERS; i++)
+    {
+        boost::asio::post(thread_pool, std::bind(&Scene::LoadChunkAux, this, chunk_coords_list_splitted[i]));
+        //LoadChunkAux(chunk_coords_list_splitted[i]);
+    }
+    thread_pool.join();
 
     for (auto it = chunk_coords_list.begin(); it != chunk_coords_list.end(); it++)
     {
@@ -108,6 +148,11 @@ void Scene::LoadChunks(int x, int z)
                 int neighbor_zc = zc + neighbor_idx_z * CHUNK_SIZE;
                 std::pair<int,int> neighbor_key = std::pair<int, int>(neighbor_xc, neighbor_zc);
                 
+                if (std::find(chunk_coords_list.begin(), chunk_coords_list.end(), neighbor_key) != chunk_coords_list.end())
+                {
+                    continue;
+                }
+
                 if (m_current_chunks.find(neighbor_key) != m_current_chunks.end()
                      && std::find(chunk_coords_list.begin(), chunk_coords_list.end(), neighbor_key) == chunk_coords_list.end())
                 {
@@ -165,7 +210,6 @@ void Scene::LoadChunkAux(std::vector<std::pair<int,int>>& chunk_coords_list)
         std::unique_lock<std::mutex> chunk_lock(m_chunks_mutex);
         m_current_chunks.try_emplace(chunk_coords, xc, zc);
         chunk_lock.unlock();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
 

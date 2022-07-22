@@ -4,12 +4,13 @@
 #include <thread>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include"Camera.h"
-#include"Scene.h"
-#include"MainRenderer.h"
-#include"Context.h"
-#include"InputBroadcaster.h"
-#include"Helpers.h"
+#include "Camera.h"
+#include "Scene.h"
+#include "MainRenderer.h"
+#include "Context.h"
+#include "InputBroadcaster.h"
+#include "Helpers.h"
+#include "GameParameters.h"
 
 class Application
 {

@@ -6,6 +6,7 @@
 #include "Terrain.h"
 #include "BiomeManager.h"
 #include "fastnoise/FastNoiseLite.h"
+#include "GameParameters.h"
 
 #define NUM_OCTAVES 6
 
@@ -31,7 +32,7 @@ class TerrainGenerator
 public:
     static constexpr TerrainParameters parameters = 
     {
-        42690, 
+        WORLD_SEED, 
         {{1.0f, 0.4f, 0.3f, 0.2f, 0.02f, 0.02f}, 
             1.0f, 0.5f, WORLD_HEIGHT/3.5f, WORLD_FLOOR-10.0f}, 
         {{1.0f, 0.6f, 0.4f, 0.2f, 0.1f, 0.1f}, 

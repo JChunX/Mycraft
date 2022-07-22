@@ -27,7 +27,7 @@ void ChunkRenderer::Render(Scene& scene, TextureManager& texture_manager)
 
     m_camera.SetProjectionViewUniforms(m_shader);
 
-    std::unique_lock<std::mutex> chunk_lock(scene.m_chunks_mutex);
+    //std::unique_lock<std::mutex> chunk_lock(scene.m_chunks_mutex);
     for (auto& kv : scene.m_current_chunks)
     {
         Chunk* chunk = &(kv.second);
@@ -49,7 +49,7 @@ void ChunkRenderer::Render(Scene& scene, TextureManager& texture_manager)
             chunk->need_mesh_update = false;
         }
     }
-    chunk_lock.unlock();
+    //chunk_lock.unlock();
 
     std::unique_lock<std::mutex> mesh_lock(scene.m_meshes_mutex);
     for (auto it = scene.m_meshes.begin(), next_it = it; it != scene.m_meshes.end(); it = next_it)

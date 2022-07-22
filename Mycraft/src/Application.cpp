@@ -13,7 +13,6 @@ Application::Application()
 
 void Application::Run()
 {
-
     InputBroadcaster::AddListener(m_camera);
     glfwSetKeyCallback(m_context.window, ExitCallback);
     

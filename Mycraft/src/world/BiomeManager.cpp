@@ -14,6 +14,9 @@ BiomeType BiomeManager::GetBiomeTypeFromParams(float height, float moisture, flo
     {
         if (height > WORLD_FLOOR + 40)
         {
+            // map height, moisture, and temperature into unique integer hash
+            int hash = (int)(height * 100) + (int)(moisture * 10) + (int)(temperature * 10);
+            std::srand(hash);
             // from 40 to 50, incrementally increase chance of mountain biome
             if (rand() % 100 < (height - WORLD_FLOOR - 40) * 10)
             {

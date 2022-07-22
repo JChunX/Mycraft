@@ -1,7 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#define NUM_CHUNK_POOL_WORKERS 2
+#define NUM_CHUNK_POOL_WORKERS 6
 
 class Mesh; 
 class Fluid;
@@ -34,7 +34,7 @@ public:
 
     void Begin(bool* terminate_flag);
     void Update();
-    void LoadChunks(int x, int z);
+    void LoadChunks(int x, int z, glm::vec3 delta);
 
     bool ShouldRender(int min_xc, 
                     int min_zc, 
@@ -49,6 +49,8 @@ public:
     std::shared_ptr<Block> GetRaycastTarget(glm::vec3 position, glm::vec3 heading);
 
 private:
+
+    glm::vec3 m_camera_position_last = glm::vec3(0.0f, 0.0f, 1.0f);
     void LoadChunkAux(std::vector<std::pair<int,int>>& chunk_coords_list);
     void SortChunksByDistance(std::vector<std::pair<int,int>>& chunk_coords_list, int x, int z);
 

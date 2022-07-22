@@ -59,13 +59,13 @@ void Camera::SetProjectionViewUniforms(Shader& shader)
 
 void Camera::Input(GLFWwindow* window, UserInput& user_input, float delta_time)
 {
-
+	dt = delta_time;
+	glm::vec3 delta = glm::vec3(0.0f, 0.0f, 0.0f);
 	for (KeyInfo key_info : user_input.key_info)
 	{
 		if (key_info.key_action == PRESS)
 		{
 			glm::vec3 orientation_euler = GetEulerAngles();
-			glm::vec3 delta;
 			w_last_pressed = false;
 
 			switch (key_info.key)
@@ -94,29 +94,31 @@ void Camera::Input(GLFWwindow* window, UserInput& user_input, float delta_time)
 			    delta = glm::vec3(glm::inverse(orientation) * glm::vec3(0.0f, 0.0f, -1.0f));
 				delta.y = 0.0f;
 				delta = glm::normalize(delta);
-				position += delta * speed * forward_speed_multiplier;
+				delta = delta * speed * forward_speed_multiplier;
 				break;
 			case GLFW_KEY_A:
-				position += glm::vec3(glm::inverse(orientation) * glm::vec3(-speed, 0.0f, 0.0f));
+				delta = glm::vec3(glm::inverse(orientation) * glm::vec3(-speed, 0.0f, 0.0f));
 				break;
 			case GLFW_KEY_S:
 				delta = glm::vec3(glm::inverse(orientation) * glm::vec3(0.0f, 0.0f, 1.0f));
 				delta.y = 0.0f;
 				delta = glm::normalize(delta);
-				position += delta * speed;
+				delta = delta * speed;
 				break;
 			case GLFW_KEY_D:
-				position += glm::vec3(glm::inverse(orientation) * glm::vec3(speed, 0.0f, 0.0f));
+				delta = glm::vec3(glm::inverse(orientation) * glm::vec3(speed, 0.0f, 0.0f));
 				break;
 			case GLFW_KEY_SPACE:
-        		position += glm::vec3(0.0f, speed, 0.0f);
+        		delta = glm::vec3(0.0f, speed, 0.0f);
 				break;
 			case GLFW_KEY_LEFT_SHIFT:
-				position -= glm::vec3(0.0f, speed, 0.0f);
+				delta = -glm::vec3(0.0f, speed, 0.0f);
 				break;
 			default:
 				break;
 			}
+			delta = delta * dt;
+			position += delta;
 		}
 		if (key_info.key_action == RELEASE)
 		{
@@ -150,6 +152,7 @@ void Camera::Input(GLFWwindow* window, UserInput& user_input, float delta_time)
 			default:
 				break;
 			}
+
 		}
 	}
 	for (MouseInfo mouse_info : user_input.mouse_info) {

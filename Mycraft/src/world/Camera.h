@@ -28,13 +28,15 @@ public:
 
     bool first_click = true;
 
-    float speed = 0.5f;
+    float speed = 50.0f;
     float sensitivity = 100.0f;
 
     float last_time;
     float forward_speed_multiplier = 1.0f;
     bool w_last_pressed = false;
     MotionState motion_state = MotionState::SLOW;
+
+    float dt = 0.0f;
 
     // Camera constructor
     Camera(int width, int height,

@@ -44,7 +44,6 @@ void Mesh::UpdateBuffer()
     if(buffered)
     {
         float* vertices = &m_vertices[0];
-        std::cout << "Updating buffer, nfaces= " << n_faces << std::endl;
         m_vbo.Buffer(vertices, n_faces*6*12*sizeof(float)); 
         m_vbo.Unbind();
     }
