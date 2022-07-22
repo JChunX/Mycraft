@@ -103,7 +103,7 @@ glm::vec4 TextureManager::RetrieveBlockTextureRecolor(BlockType type, BlockFace 
     temperature = std::clamp(temperature, 0, 31);
     moisture = std::clamp(moisture, 0, 31);
 
-    int index = (31-temperature) + (31-moisture) * 32;
+    int index = (31-temperature) + (moisture) * 32;
 
     color *= glm::vec4(m_block_texture_recolor_map[index * 4], m_block_texture_recolor_map[index * 4 + 1], m_block_texture_recolor_map[index * 4 + 2], m_block_texture_recolor_map[index * 4 + 3]);
 

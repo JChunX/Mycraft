@@ -18,6 +18,12 @@ std::shared_ptr<Terrain> TerrainGenerator::GenerateTerrain(int xc, int zc)
 
     terrain.biome_type = BiomeManager::GetBiomeTypeFromParams(avg_height, avg_moisture, avg_temperature);
 
+    for (int i = 0; i < CHUNK_SIZE * CHUNK_SIZE; i++)
+    {
+        terrain.heightmap[i] *= (0.5 + terrain.moisturemap[i] / 31.0f);
+        terrain.heightmap[i] += 10.0f;
+    }
+
     return std::make_shared<Terrain>(terrain);
 }
 

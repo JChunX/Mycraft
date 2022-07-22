@@ -12,6 +12,15 @@ BiomeType BiomeManager::GetBiomeTypeFromParams(float height, float moisture, flo
     }
     if (height < WORLD_FLOOR + 50)
     {
+        if (height > WORLD_FLOOR + 40)
+        {
+            // from 40 to 50, incrementally increase chance of mountain biome
+            if (rand() % 100 < (height - WORLD_FLOOR - 40) * 10)
+            {
+                return BiomeType::MOUNTAIN;
+            }
+        }
+        
         if (temperature < 6) {
             if (moisture < 15) {
                 return BiomeType::TUNDRA;
@@ -21,7 +30,7 @@ BiomeType BiomeManager::GetBiomeTypeFromParams(float height, float moisture, flo
             }
         }
         else {
-            if (moisture < 6) {
+            if (moisture < 3) {
                 return BiomeType::DESERT;
             }
             else if (moisture < 20) {

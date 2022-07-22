@@ -4,8 +4,8 @@
 ChunkRenderer::ChunkRenderer(Camera& camera, Scene& scene, TextureManager& texture_manager)
     : Renderer(camera, scene, texture_manager, "shaders/block.vert", "shaders/block.frag")
 {
-    m_shader.SetFloat("air_fog_maxdist", 300.0f);//"air_fog_maxdist", (CHUNK_LOAD_DISTANCE-2) * CHUNK_SIZE);
-    m_shader.SetFloat("air_fog_mindistm", 290.0f);//"air_fog_mindist", (CHUNK_LOAD_DISTANCE-5) * CHUNK_SIZE - 50.0f);
+    m_shader.SetFloat("air_fog_maxdist", (CHUNK_LOAD_DISTANCE-2) * CHUNK_SIZE);
+    m_shader.SetFloat("air_fog_mindist", (CHUNK_LOAD_DISTANCE-5) * CHUNK_SIZE - 50.0f);
     m_shader.SetVec4("air_fog_color", 0.8f, 0.8f, 0.8f, 0.9f);
 
     m_shader.SetFloat("water_fog_maxdist", 25.0f);
